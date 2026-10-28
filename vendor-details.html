@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="description" content="View vendor details and live availability on StreetKart.">
+  <title>Stall Details - StreetKart</title>
+  <link rel="stylesheet" href="styles/index.css">
+</head>
+
+<body>
+  <!-- Navigation Header with Stitch Location Context & Live Badge -->
+  <nav class="navbar navbar-stitch">
+    <div class="navbar-container">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <a href="index.html" class="navbar-logo" aria-label="StreetKart Home">
+          <svg width="38" height="38" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 60 80 L 70 80 L 85 140 L 140 140 L 150 100 L 75 100" stroke="#E67E22" stroke-width="8" fill="none"
+              stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="90" cy="150" r="6" fill="#E67E22" />
+            <circle cx="130" cy="150" r="6" fill="#E67E22" />
+            <path d="M 95 90 Q 110 85 125 90" stroke="#6CB52D" stroke-width="6" fill="none" stroke-linecap="round" />
+            <line x1="95" y1="90" x2="95" y2="105" stroke="#6CB52D" stroke-width="4" />
+            <line x1="125" y1="90" x2="125" y2="105" stroke="#6CB52D" stroke-width="4" />
+            <rect x="90" y="105" width="40" height="15" fill="#6CB52D" rx="2" />
+          </svg>
+          <span style="color: var(--color-brand-green); font-weight: 800;">Street</span><span style="color: var(--color-brand-orange); font-weight: 800;">Kart</span>
+          <span class="brand-live-pill">Live</span>
+        </a>
+
+        <!-- Location Context Indicator -->
+        <button class="location-context-btn" title="Click to change Lucknow discovery zone">
+          <span class="material-symbols-outlined" style="color: var(--color-secondary); font-size: 16px;">location_on</span>
+          <span>Lucknow, UP</span>
+          <span class="material-symbols-outlined" style="font-size: 14px; color: var(--color-outline);">arrow_drop_down</span>
+        </button>
+      </div>
+
+      <button class="navbar-toggle" aria-label="Toggle menu">☰</button>
+      <ul class="navbar-menu">
+        <li><a href="index.html" data-i18n="nav_home">Home</a></li>
+        <li><a href="browse.html" data-i18n="nav_browse">Browse Vendors</a></li>
+        <li><a href="vendor-dashboard.html">My Stall</a></li>
+        <li><a href="about.html" data-i18n="nav_about">About</a></li>
+        <li><a href="contact.html" data-i18n="nav_contact">Contact</a></li>
+        <li><a href="vendor-signup.html" class="btn btn-primary btn-sm" data-i18n="nav_signup">+ Add Stall</a></li>
+        <li>
+          <div class="lang-switcher"></div>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Vendor Details Section -->
+  <main class="container" style="padding-top: 1.5rem; padding-bottom: 3.5rem;">
+    <!-- Container dynamically populated by JavaScript -->
+    <div id="vendorDetailsContent">
+      <div style="text-align: center; padding: 3rem 1rem;">
+        <div class="spinner" style="width: 2.5rem; height: 2.5rem; border: 3px solid var(--color-outline-variant); border-top-color: var(--color-primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem auto;"></div>
+        <p style="color: var(--color-on-surface-variant); font-weight: 600;">Loading stall details...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+    <a href="index.html" class="mobile-nav-link">
+      <span class="material-symbols-outlined">explore</span>
+      <span>Discover</span>
+    </a>
+    <a href="browse.html" class="mobile-nav-link active">
+      <span class="material-symbols-outlined">grid_view</span>
+      <span>Browse</span>
+    </a>
+    <a href="vendor-dashboard.html" class="mobile-nav-link">
+      <span class="material-symbols-outlined">store</span>
+      <span>My Stall</span>
+    </a>
+    <a href="vendor-signup.html" class="mobile-nav-link">
+      <span class="material-symbols-outlined">add_circle</span>
+      <span>Add Stall</span>
+    </a>
+  </nav>
+
+  <!-- Preserved Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>StreetKart</h4>
+          <p>Digital visibility for local street vendors.</p>
+        </div>
+        <div class="footer-section">
+          <h4>For Vendors</h4>
+          <ul class="footer-links">
+            <li><a href="vendor-signup.html">Create Stall Profile</a></li>
+            <li><a href="vendor-dashboard.html">Vendor Dashboard</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>For Customers</h4>
+          <ul class="footer-links">
+            <li><a href="browse.html">Browse Vendors</a></li>
+            <li><a href="about.html">About Us</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Connect</h4>
+          <ul class="footer-links">
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 StreetKart. Empowering local commerce.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="data/vendors.js"></script>
+  <script src="scripts/mock-store.js"></script>
+  <script src="scripts/mock-auth.js"></script>
+  <script src="scripts/supabase-client.js"></script>
+  <script src="scripts/translations.js"></script>
+  <script src="scripts/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', loadVendorDetails);
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "StreetKart Architecture",
+    "output": "output/architecture/streetkart-architecture.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/aarushtiwari297/streetkart.git",
+      "revision": "976ba01cb88fc545cb4bf2fbf88a158c64110462",
+      "provider": "github",
+      "link_mode": "web"
+    }
+  },
+  "components": [
+    {
+      "id": "browser-client",
+      "type": "external",
+      "label": "Web & Mobile Clients",
+      "sublabel": "Browser Viewports",
+      "tag": "End Users",
+      "pos": [40, 140],
+      "size": [150, 68]
+    },
+    {
+      "id": "discovery-views",
+      "type": "frontend",
+      "label": "Customer Discovery",
+      "sublabel": "index.html & browse.html",
+      "tag": "HTML5 Views",
+      "pos": [340, 60],
+      "size": [160, 68],
+      "sources": [
+        { "path": "index.html", "line": 42, "end_line": 60, "label": "Hero & search CTA" },
+        { "path": "browse.html", "line": 58, "end_line": 75, "label": "Filter & vendor grid" }
+      ]
+    },
+    {
+      "id": "vendor-views",
+      "type": "frontend",
+      "label": "Vendor Portal Views",
+      "sublabel": "signup & dashboard HTML",
+      "tag": "Portal UI",
+      "pos": [340, 220],
+      "size": [160, 68],
+      "sources": [
+        { "path": "vendor-signup.html", "line": 50, "end_line": 70, "label": "Onboarding form" },
+        { "path": "vendor-dashboard.html", "line": 115, "end_line": 140, "label": "Availability toggle" }
+      ]
+    },
+    {
+      "id": "details-view",
+      "type": "frontend",
+      "label": "Vendor Profile View",
+      "sublabel": "vendor-details.html",
+      "tag": "URL Query Router",
+      "pos": [660, 60],
+      "size": [160, 68],
+      "sources": [
+        { "path": "vendor-details.html", "line": 40, "end_line": 50, "label": "Profile details container" },
+        { "path": "scripts/main.js", "line": 113, "end_line": 150, "label": "loadVendorDetails(?id=...)" }
+      ]
+    },
+    {
+      "id": "ui-engine",
+      "type": "frontend",
+      "label": "Client Logic & Engine",
+      "sublabel": "scripts/main.js",
+      "tag": "Event Handlers",
+      "pos": [660, 220],
+      "size": [160, 68],
+      "sources": [
+        { "path": "scripts/main.js", "line": 17, "end_line": 35, "label": "handleVendorSignup" },
+        { "path": "scripts/main.js", "line": 36, "end_line": 95, "label": "filter & render cards" },
+        { "path": "scripts/main.js", "line": 191, "end_line": 202, "label": "toggleVendorStatus" }
+      ]
+    },
+    {
+      "id": "data-store",
+      "type": "database",
+      "label": "Vendor Data Store",
+      "sublabel": "data/vendors.js",
+      "tag": "In-Memory Dataset",
+      "pos": [980, 140],
+      "size": [160, 68],
+      "sources": [
+        { "path": "data/vendors.js", "line": 4, "end_line": 35, "label": "Vendors mock dataset" },
+        { "path": "data/vendors.js", "line": 108, "end_line": 126, "label": "Query & filter utilities" }
+      ]
+    },
+    {
+      "id": "design-tokens",
+      "type": "frontend",
+      "label": "Design System & CSS",
+      "sublabel": "styles/index.css",
+      "tag": "CSS Variables",
+      "pos": [660, 370],
+      "size": [160, 68],
+      "sources": [
+        { "path": "styles/index.css", "line": 10, "end_line": 50, "label": "Design tokens & palette" },
+        { "path": "styles/index.css", "line": 313, "end_line": 380, "label": "Card & badge utilities" }
+      ]
+    },
+    {
+      "id": "google-fonts",
+      "type": "cloud",
+      "label": "Google Fonts CDN",
+      "sublabel": "fonts.googleapis.com",
+      "tag": "Inter & Poppins",
+      "pos": [660, 510],
+      "size": [160, 64],
+      "sources": [
+        { "path": "styles/index.css", "line": 6, "end_line": 8, "label": "Typography web font import" }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "StreetKart Client Application Stack",
+      "wraps": [
+        "discovery-views",
+        "vendor-views",
+        "details-view",
+        "ui-engine",
+        "design-tokens",
+        "data-store"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "client-to-discovery",
+      "from": "browser-client",
+      "to": "discovery-views",
+      "label": "HTTP GET / browse",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "client-to-vendor",
+      "from": "browser-client",
+      "to": "vendor-views",
+      "label": "HTTP GET / signup",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "discovery-to-details",
+      "from": "discovery-views",
+      "to": "details-view",
+      "label": "href ?id=...",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "discovery-to-engine",
+      "from": "discovery-views",
+      "to": "ui-engine",
+      "label": "filter & search",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "vendor-to-engine",
+      "from": "vendor-views",
+      "to": "ui-engine",
+      "label": "form submit & toggle",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "engine-to-store",
+      "from": "ui-engine",
+      "to": "data-store",
+      "label": "filter & query data",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "bottom"
+    },
+    {
+      "id": "details-to-store",
+      "from": "details-view",
+      "to": "data-store",
+      "label": "getVendorById(id)",
+      "fromSide": "right",
+      "toSide": "top"
+    },
+    {
+      "id": "engine-to-styles",
+      "from": "ui-engine",
+      "to": "design-tokens",
+      "label": "applies class states",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "styles-to-fonts",
+      "from": "design-tokens",
+      "to": "google-fonts",
+      "label": "@import web fonts",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Architecture Overview",
+      "items": [
+        "Zero-backend static web architecture running completely in modern client browsers",
+        "Decoupled HTML5 view layer for buyer discovery, vendor onboarding, and vendor operations"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Data & State Management",
+      "items": [
+        "Structured mock vendor dataset in data/vendors.js with category indexing",
+        "Dynamic URL search parameters (?id=...) route state into vendor-details.html",
+        "Reactive client filtering and status toggle without page reload"
+      ]
+    },
+    {
+      "dot": "orange",
+      "title": "Design System & Assets",
+      "items": [
+        "Centralized CSS custom properties in styles/index.css governing colors, spacing, and radius",
+        "External typography stream from Google Fonts CDN (Inter & Poppins web fonts)",
+        "Component utility classes for cards, badges, buttons, and toggle sliders"
+      ]
+    }
+  ]
+}

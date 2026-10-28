@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "cc65627c-5faf-4c1c-8524-71424b71549e",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "C:\\Users\\aarus\\OneDrive\\Desktop\\streetkart\\.archify\\architecture-streetkart-20261024\\candidate.json",
+  "output": "C:\\Users\\aarus\\OneDrive\\Desktop\\streetkart\\output\\streetkart-architecture.html",
+  "specification": {
+    "sha256": "4b1d63ea8fd0e17afaaba068046c293de9f737ad7ee1731d655b6d3c3092a89d",
+    "bytes": 6489
+  },
+  "artifact": {
+    "sha256": "9ab3ad0c14d286848a3b57b222349850952cfbd25951fb33bd04eab46e27845c",
+    "bytes": 831206
+  }
+}

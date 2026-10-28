@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="description" content="Manage your street cart availability, products, and neighbourhood visibility on StreetKart.">
+  <title>Vendor Dashboard - StreetKart</title>
+  <link rel="stylesheet" href="styles/index.css">
+</head>
+
+<body>
+  <!-- Navigation Header with Stitch Location Context & Live Badge -->
+  <nav class="navbar navbar-stitch">
+    <div class="navbar-container">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <a href="index.html" class="navbar-logo" aria-label="StreetKart Home">
+          <svg width="38" height="38" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 60 80 L 70 80 L 85 140 L 140 140 L 150 100 L 75 100" stroke="#E67E22" stroke-width="8" fill="none"
+              stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="90" cy="150" r="6" fill="#E67E22" />
+            <circle cx="130" cy="150" r="6" fill="#E67E22" />
+            <path d="M 95 90 Q 110 85 125 90" stroke="#6CB52D" stroke-width="6" fill="none" stroke-linecap="round" />
+            <line x1="95" y1="90" x2="95" y2="105" stroke="#6CB52D" stroke-width="4" />
+            <line x1="125" y1="90" x2="125" y2="105" stroke="#6CB52D" stroke-width="4" />
+            <rect x="90" y="105" width="40" height="15" fill="#6CB52D" rx="2" />
+          </svg>
+          <span style="color: var(--color-brand-green); font-weight: 800;">Street</span><span style="color: var(--color-brand-orange); font-weight: 800;">Kart</span>
+          <span class="brand-live-pill">Live</span>
+        </a>
+
+        <!-- Location Context Indicator -->
+        <button class="location-context-btn" title="Click to change Lucknow discovery zone">
+          <span class="material-symbols-outlined" style="color: var(--color-secondary); font-size: 16px;">location_on</span>
+          <span id="dashboardLocalityHeader">Lucknow, UP</span>
+          <span class="material-symbols-outlined" style="font-size: 14px; color: var(--color-outline);">arrow_drop_down</span>
+        </button>
+      </div>
+
+      <button class="navbar-toggle" aria-label="Toggle menu">☰</button>
+      <ul class="navbar-menu">
+        <li><a href="index.html" data-i18n="nav_home">Home</a></li>
+        <li><a href="browse.html" data-i18n="nav_browse">Browse Vendors</a></li>
+        <li><a href="vendor-dashboard.html" class="active">My Stall</a></li>
+        <li><a href="about.html" data-i18n="nav_about">About</a></li>
+        <li><a href="contact.html" data-i18n="nav_contact">Contact</a></li>
+        <li><a href="vendor-signup.html" class="btn btn-primary btn-sm" data-i18n="nav_signup">+ Add Stall</a></li>
+        <li>
+          <div class="lang-switcher"></div>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Dashboard Main Container -->
+  <main class="container" style="padding-top: 1.5rem; padding-bottom: 4.5rem; max-width: 900px;">
+    
+    <!-- Access Gate Notice (Shown when visitor is not logged in as a Vendor) -->
+    <div id="vendorAccessGate" style="display: none;" class="vendor-gate-card">
+      <div style="width: 3.5rem; height: 3.5rem; border-radius: 50%; background: var(--color-primary-fixed); color: var(--color-primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem auto; font-size: 28px;">
+        👨‍🍳
+      </div>
+      <h2 id="vendorGateTitle" style="font-size: 1.5rem; font-weight: 800; color: var(--color-on-surface); margin-bottom: 0.5rem;">
+        Vendor Dashboard Access
+      </h2>
+      <p id="vendorGateDesc" style="font-size: 0.9375rem; color: var(--color-on-surface-variant); margin-bottom: 1.5rem; line-height: 1.5;">
+        You must be signed in as a verified street vendor to manage stall status, menu items, and neighbourhood visibility.
+      </p>
+      <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+        <button type="button" class="btn btn-primary" onclick="StreetKartAuthUI.open()">
+          <span class="material-symbols-outlined" style="font-size: 18px;">login</span>
+          <span>Sign In / Demo Login</span>
+        </button>
+        <a href="browse.html" class="btn btn-outline">
+          <span class="material-symbols-outlined" style="font-size: 18px;">explore</span>
+          <span>Browse Public Stalls</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Active Vendor Dashboard Content -->
+    <div id="vendorDashboardContent" style="display: none;">
+      <!-- Top Motivation Slogan Banner (Stitch Screen 4cb5b027) -->
+      <div style="background-color: var(--color-primary); color: var(--color-on-primary); border-radius: var(--radius-xl); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; box-shadow: var(--shadow-sm);">
+        <div>
+          <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-primary-fixed); display: block; margin-bottom: 0.15rem;">
+            StreetKart Saathi
+          </span>
+          <h2 style="font-size: 1.25rem; font-weight: 800; color: white; margin: 0 0 0.15rem 0;">
+            "Local dikhega, tabhi bikega"
+          </h2>
+          <p style="font-size: 0.8125rem; color: var(--color-primary-fixed-dim); margin: 0;">
+            Digital visibility & trust for your neighbourhood handcart.
+          </p>
+        </div>
+        <div style="width: 2.75rem; height: 2.75rem; border-radius: 50%; background-color: var(--color-primary-container); color: var(--color-primary-fixed); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <span class="material-symbols-outlined" style="font-size: 24px;">campaign</span>
+        </div>
+      </div>
+
+      <!-- Vendor Profile Card & Greeting -->
+      <div class="card" style="border: 1px solid var(--color-outline-variant); border-radius: var(--radius-xl); padding: 1.5rem; background-color: var(--color-surface-container-lowest); margin-bottom: 1.5rem; box-shadow: var(--shadow-xs);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+          <div style="display: flex; gap: 1rem; align-items: center;">
+            <div style="position: relative;">
+              <img id="dashboardVendorImg" src="assets/logo-icon.svg"
+                alt="Vendor profile" style="width: 4.5rem; height: 4.5rem; border-radius: 50%; object-fit: cover; box-shadow: var(--shadow-xs);">
+              <span style="position: absolute; bottom: 0; right: 0; width: 1.25rem; height: 1.25rem; background-color: var(--color-primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">✓</span>
+            </div>
+            <div>
+              <p style="font-size: 0.875rem; color: var(--color-on-surface-variant); margin: 0 0 0.15rem 0; font-weight: 600;">
+                Hello <span id="dashboardGreetingName">Vendor Ji</span>! 👋
+              </p>
+              <h1 id="dashboardStallName" style="font-size: 1.5rem; font-weight: 800; color: var(--color-on-surface); margin: 0 0 0.25rem 0;">
+                Awadh Chaat Corner
+              </h1>
+              <p id="dashboardLocality" style="font-size: 0.875rem; color: var(--color-on-surface-variant); margin: 0; display: flex; align-items: center; gap: 0.25rem;">
+                <span class="material-symbols-outlined" style="color: var(--color-secondary); font-size: 16px;">place</span>
+                Hazratganj, Lucknow
+              </p>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span id="statusBadge" class="badge badge-success animate-pulse" style="font-size: 0.875rem; padding: 0.35rem 0.85rem;">
+              ● Open Right Now
+            </span>
+            <button type="button" class="btn btn-outline btn-sm" onclick="openProfileEditModal()">
+              <span class="material-symbols-outlined" style="font-size: 16px;">edit</span>
+              <span>Edit Details</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Big Tactile Master Availability Toggle (Stitch Screen 4cb5b027 Anchor) -->
+      <section class="card" style="border: 2px solid var(--color-primary); border-radius: var(--radius-2xl); padding: 1.75rem; background-color: var(--color-surface-container-lowest); margin-bottom: 2rem; box-shadow: var(--shadow-md);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span id="liveStatusDot" style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: var(--color-primary); animation: pulse 2s infinite;"></span>
+            <span id="liveStatusText" style="font-size: 1.0625rem; font-weight: 800; color: var(--color-primary); letter-spacing: 0.02em;">
+              DUKAAN CHALU HAI (STALL IS LIVE)
+            </span>
+          </div>
+          <span style="font-size: 0.75rem; font-weight: 700; background-color: var(--color-primary-fixed); color: var(--color-on-primary-fixed); padding: 0.2rem 0.6rem; border-radius: var(--radius-full); text-transform: uppercase;">
+            2 km Coverage Active
+          </span>
+        </div>
+
+        <!-- Giant Dual-Thumb Buttons -->
+        <div class="dukaan-switch-container">
+          <button type="button" id="btnDukaanOpen" class="btn-dukaan-thumb btn-dukaan-open-active" onclick="setStallState(true)">
+            <span class="material-symbols-outlined" style="font-size: 24px;">check_circle</span>
+            <span>KHULI HAI (OPEN)</span>
+          </button>
+          <button type="button" id="btnDukaanClosed" class="btn-dukaan-thumb btn-dukaan-closed-inactive" onclick="setStallState(false)">
+            <span class="material-symbols-outlined" style="font-size: 24px;">cancel</span>
+            <span>BAND HAI (CLOSED)</span>
+          </button>
+        </div>
+
+        <!-- Hidden compatibility checkbox for legacy scripts -->
+        <input type="checkbox" id="statusToggle" style="display: none;" checked>
+
+        <p id="statusHelperText" style="font-size: 0.875rem; color: var(--color-on-surface-variant); text-align: center; margin: 0.75rem 0 0 0;">
+          🟢 Neighbours within 2 km can currently see your cart as open. Tap <strong style="color: var(--color-secondary);">"BAND HAI"</strong> when you leave.
+        </p>
+      </section>
+
+      <!-- Aaj Ki Halchal (Today's Footfall Metrics) -->
+      <section style="margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <h2 style="font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--color-on-surface);">
+            Aaj Ki Halchal (Today's Footfall)
+          </h2>
+          <span style="font-size: 0.75rem; font-weight: 600; color: var(--color-on-surface-variant);">
+            Real-time updates
+          </span>
+        </div>
+
+        <div class="grid grid-3">
+          <div class="metric-card-footfall">
+            <div style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background-color: var(--color-surface-container-high); color: var(--color-primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem auto;">
+              <span class="material-symbols-outlined">visibility</span>
+            </div>
+            <div class="metric-num" style="color: var(--color-primary);">142</div>
+            <p style="font-size: 0.8125rem; font-weight: 700; color: var(--color-on-surface); margin-bottom: 0.15rem;">Neighbours Saw Stall</p>
+            <span style="font-size: 0.6875rem; color: var(--color-on-surface-variant);">Today's digital impressions</span>
+          </div>
+
+          <div class="metric-card-footfall">
+            <div style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background-color: var(--color-secondary-fixed); color: var(--color-secondary); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem auto;">
+              <span class="material-symbols-outlined">directions_walk</span>
+            </div>
+            <div class="metric-num" style="color: var(--color-secondary);">38</div>
+            <p style="font-size: 0.8125rem; font-weight: 700; color: var(--color-on-surface); margin-bottom: 0.15rem;">Walked Toward Cart</p>
+            <span style="font-size: 0.6875rem; color: var(--color-on-surface-variant);">Walking directions clicked</span>
+          </div>
+
+          <div class="metric-card-footfall">
+            <div style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background-color: var(--color-tertiary-fixed); color: var(--color-tertiary); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem auto;">
+              <span class="material-symbols-outlined">star</span>
+            </div>
+            <div class="metric-num" style="color: var(--color-tertiary);">19</div>
+            <p style="font-size: 0.8125rem; font-weight: 700; color: var(--color-on-surface); margin-bottom: 0.15rem;">Regular Customers</p>
+            <span style="font-size: 0.6875rem; color: var(--color-on-surface-variant);">Saved your stall</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Aaj Ka Samaan (Menu Stock Availability) -->
+      <section class="card" style="border: 1px solid var(--color-outline-variant); border-radius: var(--radius-xl); padding: 1.5rem; background-color: var(--color-surface-container-lowest); margin-bottom: 2rem; box-shadow: var(--shadow-xs);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <div>
+            <h2 style="font-size: 1.125rem; font-weight: 800; margin: 0; color: var(--color-on-surface);">
+              Aaj Ka Samaan (Menu Stock)
+            </h2>
+            <p style="font-size: 0.8125rem; color: var(--color-on-surface-variant); margin: 0.15rem 0 0 0;">
+              Tap button to mark items as finished / khatam when sold out.
+            </p>
+          </div>
+          <button type="button" class="btn btn-primary btn-sm" onclick="openAddMenuItemModal()" style="font-weight: 700;">
+            <span class="material-symbols-outlined" style="font-size: 16px;">add</span>
+            <span>+ Naya Item</span>
+          </button>
+        </div>
+
+        <div id="dashboardMenuList" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <!-- Populated dynamically by JavaScript -->
+        </div>
+      </section>
+
+    <!-- Cart Location & Parked Spot Confirmation -->
+    <section class="card" style="border: 1px solid var(--color-outline-variant); border-radius: var(--radius-xl); padding: 1.5rem; background-color: var(--color-surface-container-lowest); margin-bottom: 2rem; box-shadow: var(--shadow-xs);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div>
+          <h2 style="font-size: 1.125rem; font-weight: 800; margin: 0; color: var(--color-on-surface);">
+            Aaj Ki Cart Jagah (Spot)
+          </h2>
+          <p style="font-size: 0.8125rem; color: var(--color-on-surface-variant); margin: 0.15rem 0 0 0;">
+            Update GPS if you shifted your pushcart today.
+          </p>
+        </div>
+        <span class="material-symbols-outlined" style="color: var(--color-secondary); font-size: 24px;">pin_drop</span>
+      </div>
+
+      <div style="border-radius: var(--radius-lg); overflow: hidden; height: 120px; background-size: cover; background-position: center; position: relative; margin-bottom: 1rem; background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDUa9spQP19vEXvjhj1c_10DXleYsWGKlx1gSgyfdKjhI-UKC2-9IaofTHWE_R6BC6BKYB1XSU7KzjkPUeI7IWbCCP58mYjZ_oa0XJXVY2ISW_J5AZN9Cd7SNn8zgLkSHAi1WYdnAXwtK8Jz8ySVQqwdeJWO4H_foV3g4AeyIrkd1odBDTakT-f1I7B1le5fgKkH1CfID9ipOjb5vDtU2iIqBBDatKOmZy8jcBnxUc');">
+        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.3); display: flex; align-items: flex-end; padding: 0.75rem;">
+          <div style="background: white; border-radius: var(--radius-md); padding: 0.35rem 0.75rem; font-size: 0.8125rem; font-weight: 700; color: var(--color-on-surface); display: flex; align-items: center; gap: 0.35rem;">
+            <span class="material-symbols-outlined" style="color: var(--color-secondary); font-size: 16px;">store</span>
+            <span id="dashboardSpotName">Near BDA complex peepal tree, 12th Main</span>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-outline" style="width: 100%; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 0.4rem;" onclick="updateCartSpotLocation()">
+        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--color-primary);">my_location</span>
+        <span>Abhi Ki Jagah Update Karein (Current GPS Spot)</span>
+      </button>
+    </section>
+
+    <!-- Customer Preview (Stitch Screen 4cb5b027) -->
+    <section class="card" style="border: 1px solid var(--color-outline-variant); border-radius: var(--radius-xl); padding: 1.5rem; background-color: var(--color-surface-container-low); margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.875rem;">
+        <div>
+          <h2 style="font-size: 1.125rem; font-weight: 800; margin: 0; color: var(--color-on-surface);">
+            Customer Preview
+          </h2>
+          <p style="font-size: 0.8125rem; color: var(--color-on-surface-variant); margin: 0.15rem 0 0 0;">
+            How your stall appears to neighbours in Indiranagar.
+          </p>
+        </div>
+        <span style="font-size: 0.6875rem; font-weight: 700; background: white; padding: 0.2rem 0.6rem; border-radius: var(--radius-full); border: 1px solid var(--color-outline-variant);">
+          Live Card
+        </span>
+      </div>
+
+      <div id="dashboardCustomerPreviewCard">
+        <!-- Rendered by JavaScript -->
+      </div>
+
+      <!-- Share Stall on WhatsApp -->
+      <button type="button" class="btn btn-primary" style="width: 100%; background-color: var(--color-secondary); border-color: var(--color-secondary); font-weight: 700; margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem;" onclick="shareVendorWhatsApp()">
+        <span class="material-symbols-outlined" style="font-size: 20px;">share</span>
+        <span>Grahak ko WhatsApp par bhejein (Share Stall)</span>
+      </button>
+    </div> <!-- /#vendorDashboardContent -->
+
+    <!-- Profile Edit Modal -->
+    <div id="profileEditModalBackdrop" class="location-modal-backdrop">
+      <div class="location-modal animate-scale-in" role="dialog" aria-modal="true" style="max-width: 500px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <h2 style="font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--color-on-surface);">Edit Stall Details</h2>
+          <button type="button" class="btn-icon" onclick="closeProfileEditModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-on-surface-variant);">&times;</button>
+        </div>
+        <form id="profileEditForm" onsubmit="saveProfileEdits(event)">
+          <div style="margin-bottom: 0.85rem;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--color-on-surface-variant); margin-bottom: 0.25rem;">Stall Name</label>
+            <input type="text" id="editStallName" required style="width: 100%; padding: 0.65rem 0.85rem; border: 1.5px solid var(--color-outline-variant); border-radius: var(--radius-md); font-size: 0.875rem;">
+          </div>
+          <div style="margin-bottom: 0.85rem;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--color-on-surface-variant); margin-bottom: 0.25rem;">Category</label>
+            <select id="editCategory" style="width: 100%; padding: 0.65rem 0.85rem; border: 1.5px solid var(--color-outline-variant); border-radius: var(--radius-md); font-size: 0.875rem;">
+              <option value="Snacks">Snacks</option>
+              <option value="Vegetables">Vegetables</option>
+              <option value="Tea">Tea</option>
+              <option value="Flowers">Flowers</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div style="margin-bottom: 0.85rem;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--color-on-surface-variant); margin-bottom: 0.25rem;">Locality (Lucknow Zone)</label>
+            <input type="text" id="editLocality" required style="width: 100%; padding: 0.65rem 0.85rem; border: 1.5px solid var(--color-outline-variant); border-radius: var(--radius-md); font-size: 0.875rem;">
+          </div>
+          <div style="margin-bottom: 0.85rem;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--color-on-surface-variant); margin-bottom: 0.25rem;">Landmark Spot</label>
+            <input type="text" id="editLandmark" placeholder="Near Cathedral Church Gate" style="width: 100%; padding: 0.65rem 0.85rem; border: 1.5px solid var(--color-outline-variant); border-radius: var(--radius-md); font-size: 0.875rem;">
+          </div>
+          <div style="margin-bottom: 0.85rem;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--color-on-surface-variant); margin-bottom: 0.25rem;">Daily Timings</label>
+            <input type="text" id="editTimings" placeholder="4:00 PM – 10:30 PM" style="width: 100%; padding: 0.65rem 0.85rem; border: 1.5px solid var(--color-outline-variant); border-radius: var(--radius-md); font-size: 0.875rem;">
+          </div>
+          <div style="margin-bottom: 0.85rem;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--color-on-surface-variant); margin-bottom: 0.25rem;">Price Range</label>
+            <input type="text" id="editPriceRange" placeholder="₹20-50" style="width: 100%; padding: 0.65rem 0.85rem; border: 1.5px solid var(--color-outline-variant); border-radius: var(--radius-md); font-size: 0.875rem;">
+          </div>
+          <div style="margin-bottom: 1.25rem;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--color-on-surface-variant); margin-bottom: 0.25rem;">Description</label>
+            <textarea id="editDescription" rows="3" style="width: 100%; padding: 0.65rem 0.85rem; border: 1.5px solid var(--color-outline-variant); border-radius: var(--radius-md); font-size: 0.875rem;"></textarea>
+          </div>
+          <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+            <button type="button" class="btn btn-outline" onclick="closeProfileEditModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Menu Item Modal (Add / Edit) -->
+    <div id="menuItemModalBackdrop" class="location-modal-backdrop">
+      <div class="location-modal animate-scale-in" role="dialog" aria-modal="true" style="max-width: 440px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <h2 id="menuItemModalTitle" style="font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--color-on-surface);">Add Menu Item</h2>
+          <button type="button" class="btn-icon" onclick="closeMenuItemModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-on-surface-variant);">&times;</button>
+        </div>
+        <form id="menuItemForm" onsubmit="saveMenuItemForm(event)">
+          <input type="hidden" id="menuItemIndex" value="-1">
+          <div style="margin-bottom: 0.85rem;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--color-on-surface-variant); margin-bottom: 0.25rem;">Item Name</label>
+            <input type="text" id="menuItemName" required placeholder="e.g. Basket Chaat" style="width: 100%; padding: 0.65rem 0.85rem; border: 1.5px solid var(--color-outline-variant); border-radius: var(--radius-md); font-size: 0.875rem;">
+          </div>
+          <div style="margin-bottom: 0.85rem;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--color-on-surface-variant); margin-bottom: 0.25rem;">Price (₹)</label>
+            <input type="text" id="menuItemPrice" required placeholder="₹50" style="width: 100%; padding: 0.65rem 0.85rem; border: 1.5px solid var(--color-outline-variant); border-radius: var(--radius-md); font-size: 0.875rem;">
+          </div>
+          <div style="margin-bottom: 1.25rem;">
+            <label style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--color-on-surface-variant); margin-bottom: 0.25rem;">Short Description</label>
+            <input type="text" id="menuItemDesc" placeholder="e.g. Crispy potato basket filled with chana & curd" style="width: 100%; padding: 0.65rem 0.85rem; border: 1.5px solid var(--color-outline-variant); border-radius: var(--radius-md); font-size: 0.875rem;">
+          </div>
+          <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+            <button type="button" class="btn btn-outline" onclick="closeMenuItemModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btnSaveMenuItem">Save Item</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+    <a href="index.html" class="mobile-nav-link">
+      <span class="material-symbols-outlined">explore</span>
+      <span>Discover</span>
+    </a>
+    <a href="browse.html" class="mobile-nav-link">
+      <span class="material-symbols-outlined">grid_view</span>
+      <span>Browse</span>
+    </a>
+    <a href="vendor-dashboard.html" class="mobile-nav-link active">
+      <span class="material-symbols-outlined">store</span>
+      <span>My Stall</span>
+    </a>
+    <a href="vendor-signup.html" class="mobile-nav-link">
+      <span class="material-symbols-outlined">add_circle</span>
+      <span>Add Stall</span>
+    </a>
+  </nav>
+
+  <!-- Preserved Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>StreetKart</h4>
+          <p>Digital visibility for local street vendors.</p>
+        </div>
+        <div class="footer-section">
+          <h4>For Vendors</h4>
+          <ul class="footer-links">
+            <li><a href="vendor-signup.html">Create Stall Profile</a></li>
+            <li><a href="vendor-dashboard.html">Vendor Dashboard</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>For Customers</h4>
+          <ul class="footer-links">
+            <li><a href="browse.html">Browse Vendors</a></li>
+            <li><a href="about.html">About Us</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Connect</h4>
+          <ul class="footer-links">
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 StreetKart. Empowering local commerce.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="data/vendors.js"></script>
+  <script src="scripts/mock-store.js"></script>
+  <script src="scripts/mock-auth.js"></script>
+  <script src="scripts/supabase-client.js"></script>
+  <script src="scripts/translations.js"></script>
+  <script src="scripts/main.js"></script>
+  <script>
+    // Vendor Dashboard Controller (Phase 3: Verified Ownership & Profile/Menu CRUD)
+    let currentActiveVendorId = null;
+    let currentVendorData = null;
+
+    document.addEventListener('DOMContentLoaded', function () {
+      initVendorDashboard();
+    });
+
+    async function initVendorDashboard() {
+      const gate = document.getElementById('vendorAccessGate');
+      const content = document.getElementById('vendorDashboardContent');
+
+      // 1. Check Authentication & Role Gate
+      const user = window.StreetKartAuth ? window.StreetKartAuth.getCurrentUser() : null;
+      if (!user) {
+        // Logged-out visitor
+        gate.style.display = 'block';
+        content.style.display = 'none';
+        document.getElementById('vendorGateTitle').textContent = 'Vendor Dashboard Access';
+        document.getElementById('vendorGateDesc').textContent = 'You are currently not signed in. Please log in or use Demo Vendor to access the stall management dashboard.';
+        return;
+      }
+
+      if (user.role !== 'vendor') {
+        // Customer trying to view vendor dashboard
+        gate.style.display = 'block';
+        content.style.display = 'none';
+        document.getElementById('vendorGateTitle').textContent = 'Vendor Access Only';
+        document.getElementById('vendorGateDesc').textContent = `Namaste ${user.name}! You are currently signed in as a Customer. The vendor dashboard is reserved for street cart owners to manage their stalls.`;
+        return;
+      }
+
+      // 2. Verified Vendor Access
+      gate.style.display = 'none';
+      content.style.display = 'block';
+
+      // Verified vendor dashboard ownership: derived exclusively from verified user session
+      // URL parameters (such as ?id= or ?vendorId=) or stale storage keys are NOT trusted as authorities
+      currentActiveVendorId = user.vendorId ? String(user.vendorId) : '1';
+      
+      // Load vendor record from centralized store
+      if (window.StreetKartStore) {
+        currentVendorData = await window.StreetKartStore.getVendorById(currentActiveVendorId);
+      } else if (window.StreetKartData) {
+        currentVendorData = window.StreetKartData.getVendorById(currentActiveVendorId);
+      }
+
+      if (!currentVendorData) {
+        gate.style.display = 'block';
+        content.style.display = 'none';
+        document.getElementById('vendorGateTitle').textContent = 'Stall Profile Not Found';
+        document.getElementById('vendorGateDesc').textContent = `We could not locate a stall profile matching ID #${currentActiveVendorId}. Please register your stall profile first.`;
+        return;
+      }
+
+      // Ensure localStorage has the verified current vendor ID for backward compatibility
+      localStorage.setItem('streetkart_current_vendor_id', String(currentActiveVendorId));
+
+      renderDashboardUI();
+    }
+
+    function renderDashboardUI() {
+      const vendor = currentVendorData;
+      if (!vendor) return;
+
+      const authUser = window.StreetKartAuth ? window.StreetKartAuth.getCurrentUser() : null;
+      document.getElementById('dashboardGreetingName').textContent = (authUser && authUser.name) ? authUser.name : vendor.name;
+      document.getElementById('dashboardStallName').textContent = vendor.name;
+      document.getElementById('dashboardLocality').innerHTML = `
+        <span class="material-symbols-outlined" style="color: var(--color-secondary); font-size: 16px;">place</span>
+        ${vendor.locality}
+      `;
+      document.getElementById('dashboardLocalityHeader').textContent = (vendor.locality || 'Lucknow, UP').split(',')[0];
+      document.getElementById('dashboardSpotName').textContent = vendor.landmark || vendor.locality;
+      if (vendor.imageUrl) {
+        document.getElementById('dashboardVendorImg').src = vendor.imageUrl;
+      }
+
+      // Apply current open/closed state
+      setStallState(vendor.isOpen, false);
+
+      // Populate Menu Items with Add, Edit, Delete, and Stock Toggles
+      renderMenuList();
+
+      // Render customer preview card
+      renderCustomerPreview();
+    }
+
+    function renderMenuList() {
+      const menuContainer = document.getElementById('dashboardMenuList');
+      if (!menuContainer || !currentVendorData) return;
+
+      const items = Array.isArray(currentVendorData.menuItems) && currentVendorData.menuItems.length > 0
+        ? currentVendorData.menuItems
+        : (currentVendorData.products || []).map(p => ({
+            name: p,
+            price: currentVendorData.priceRange || '₹30',
+            desc: 'Freshly prepared at cart',
+            available: true
+          }));
+
+      // Ensure currentVendorData.menuItems is synchronized
+      currentVendorData.menuItems = items;
+
+      if (items.length === 0) {
+        menuContainer.innerHTML = `
+          <div style="text-align: center; padding: 1.5rem; background-color: var(--color-surface-container-low); border-radius: var(--radius-lg); color: var(--color-on-surface-variant); font-size: 0.875rem;">
+            No menu items added yet. Click <strong>+ Naya Item</strong> to list your cart specials!
+          </div>
+        `;
+        return;
+      }
+
+      menuContainer.innerHTML = items.map((item, index) => `
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background-color: var(--color-surface-container-low); border-radius: var(--radius-lg); gap: 0.75rem; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 180px;">
+            <div style="display: flex; align-items: center; gap: 0.35rem;">
+              <span id="itemDot_${index}" style="width: 8px; height: 8px; border-radius: 50%; background-color: ${item.available !== false ? 'var(--color-primary)' : 'var(--color-error)'}; display: inline-block;"></span>
+              <span style="font-weight: 700; font-size: 0.9375rem; color: var(--color-on-surface);">${item.name}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.15rem;">
+              <span style="font-size: 0.8125rem; color: var(--color-on-surface-variant); font-weight: 700;">${item.price}</span>
+              ${item.desc ? `<span style="font-size: 0.75rem; color: var(--color-outline);">• ${item.desc}</span>` : ''}
+            </div>
+          </div>
+          
+          <div style="display: flex; align-items: center; gap: 0.4rem;">
+            <button type="button" id="itemBtn_${index}" class="btn btn-sm" style="background-color: ${item.available !== false ? 'var(--color-primary)' : 'var(--color-error)'}; color: white; font-weight: 700; border-radius: var(--radius-md);" onclick="toggleStockItem(${index})">
+              ${item.available !== false ? '✓ Mil Raha Hai' : '✕ Khatam'}
+            </button>
+            <button type="button" class="item-action-btn" title="Edit Item" onclick="openEditMenuItemModal(${index})">
+              <span class="material-symbols-outlined" style="font-size: 18px;">edit</span>
+            </button>
+            <button type="button" class="item-action-btn delete" title="Delete Item" onclick="deleteMenuItem(${index})">
+              <span class="material-symbols-outlined" style="font-size: 18px;">delete</span>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderCustomerPreview() {
+      const previewContainer = document.getElementById('dashboardCustomerPreviewCard');
+      const vendor = currentVendorData;
+      if (!previewContainer || !vendor) return;
+
+      previewContainer.innerHTML = `
+        <article class="vendor-card-stitch" style="background: white;">
+          <div class="vendor-header-top">
+            <div class="vendor-img-thumb">
+              <img src="${vendor.imageUrl || 'assets/logo-icon.svg'}" alt="${vendor.name}">
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <h3 style="font-size: 1.0625rem; font-weight: 700; margin: 0; color: var(--color-on-surface);">${vendor.name}</h3>
+                <span class="vendor-rating-chip">★ ${vendor.rating || '4.9'}</span>
+              </div>
+              <p style="font-size: 0.8125rem; color: var(--color-on-surface-variant); margin: 0.25rem 0 0 0;">📍 ${vendor.locality}</p>
+              <div style="margin-top: 0.35rem;">
+                <span id="previewOpenStatus" class="${vendor.isOpen ? 'vendor-status-active' : 'vendor-status-closed'}">
+                  ${vendor.isOpen ? '● Open Right Now' : '● Closed'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    async function setStallState(isOpen, showToastNotification = true) {
+      if (!currentActiveVendorId) return;
+      
+      const btnOpen = document.getElementById('btnDukaanOpen');
+      const btnClosed = document.getElementById('btnDukaanClosed');
+      const liveDot = document.getElementById('liveStatusDot');
+      const liveText = document.getElementById('liveStatusText');
+      const helperText = document.getElementById('statusHelperText');
+      const statusBadge = document.getElementById('statusBadge');
+      const legacyToggle = document.getElementById('statusToggle');
+      const previewStatus = document.getElementById('previewOpenStatus');
+
+      if (legacyToggle) legacyToggle.checked = isOpen;
+
+      if (isOpen) {
+        btnOpen.className = 'btn-dukaan-thumb btn-dukaan-open-active';
+        btnClosed.className = 'btn-dukaan-thumb btn-dukaan-closed-inactive';
+        liveDot.style.backgroundColor = 'var(--color-primary)';
+        liveDot.style.animation = 'pulse 2s infinite';
+        liveText.style.color = 'var(--color-primary)';
+        liveText.textContent = 'DUKAAN CHALU HAI (STALL IS LIVE)';
+        statusBadge.className = 'badge badge-success animate-pulse';
+        statusBadge.textContent = '● Open Right Now';
+        helperText.innerHTML = '🟢 Neighbours within 2 km can currently see your cart as open. Tap <strong style="color: var(--color-secondary);">"BAND HAI"</strong> when you leave.';
+        if (previewStatus) {
+          previewStatus.className = 'vendor-status-active';
+          previewStatus.textContent = '● Open Right Now';
+        }
+        if (showToastNotification && window.ToastManager) {
+          ToastManager.success('🟢 Dukaan Status: Chalu (Stall is Open and visible to neighbours!)');
+        }
+      } else {
+        btnOpen.className = 'btn-dukaan-thumb btn-dukaan-open-inactive';
+        btnClosed.className = 'btn-dukaan-thumb btn-dukaan-closed-active';
+        liveDot.style.backgroundColor = 'var(--color-outline)';
+        liveDot.style.animation = 'none';
+        liveText.style.color = 'var(--color-outline)';
+        liveText.textContent = 'DUKAAN BAND HAI (STALL IS CLOSED)';
+        statusBadge.className = 'badge badge-gray';
+        statusBadge.textContent = '● Currently Closed';
+        helperText.innerHTML = '⚪ Cart is hidden from the neighbourhood live map. Tap <strong style="color: var(--color-primary);">"KHULI HAI"</strong> when ready to sell.';
+        if (previewStatus) {
+          previewStatus.className = 'vendor-status-closed';
+          previewStatus.textContent = '● Closed';
+        }
+        if (showToastNotification && window.ToastManager) {
+          ToastManager.info('⚪ Dukaan Status: Band (Stall marked closed).');
+        }
+      }
+
+      // Persist to Centralized Store
+      if (currentVendorData) {
+        currentVendorData.isOpen = isOpen;
+      }
+
+      if (window.StreetKartStore) {
+        await window.StreetKartStore.updateVendorStatus(currentActiveVendorId, isOpen);
+      } else if (window.StreetKartAPI) {
+        await window.StreetKartAPI.updateVendorStatus(currentActiveVendorId, isOpen);
+      }
+    }
+
+    async function toggleStockItem(index) {
+      if (!currentVendorData || !currentVendorData.menuItems || !currentVendorData.menuItems[index]) return;
+
+      const item = currentVendorData.menuItems[index];
+      const newAvailable = item.available === false ? true : false;
+      item.available = newAvailable;
+
+      if (window.StreetKartStore) {
+        await window.StreetKartStore.toggleMenuItemStock(currentActiveVendorId, index, newAvailable);
+      }
+
+      renderMenuList();
+
+      if (window.ToastManager) {
+        if (newAvailable) {
+          ToastManager.success(`Item "${item.name}" marked as Available (Mil Raha Hai)!`);
+        } else {
+          ToastManager.info(`Item "${item.name}" marked as Khatam (Sold Out).`);
+        }
+      }
+    }
+
+    // =========================================================================
+    // PROFILE EDIT MODAL LOGIC
+    // =========================================================================
+    function openProfileEditModal() {
+      if (!currentVendorData) return;
+      document.getElementById('editStallName').value = currentVendorData.name || '';
+      document.getElementById('editCategory').value = currentVendorData.category || 'Other';
+      document.getElementById('editLocality').value = currentVendorData.locality || '';
+      document.getElementById('editLandmark').value = currentVendorData.landmark || '';
+      document.getElementById('editTimings').value = currentVendorData.timings || '';
+      document.getElementById('editPriceRange').value = currentVendorData.priceRange || '';
+      document.getElementById('editDescription').value = currentVendorData.description || '';
+
+      const modal = document.getElementById('profileEditModalBackdrop');
+      if (modal) modal.classList.add('active');
+    }
+
+    function closeProfileEditModal() {
+      const modal = document.getElementById('profileEditModalBackdrop');
+      if (modal) modal.classList.remove('active');
+    }
+
+    async function saveProfileEdits(e) {
+      e.preventDefault();
+      if (!currentActiveVendorId) return;
+
+      const updates = {
+        name: document.getElementById('editStallName').value,
+        category: document.getElementById('editCategory').value,
+        locality: document.getElementById('editLocality').value,
+        landmark: document.getElementById('editLandmark').value,
+        timings: document.getElementById('editTimings').value,
+        priceRange: document.getElementById('editPriceRange').value,
+        description: document.getElementById('editDescription').value
+      };
+
+      if (window.StreetKartStore) {
+        const updated = await window.StreetKartStore.updateVendorProfile(currentActiveVendorId, updates);
+        if (updated) {
+          currentVendorData = updated;
+          renderDashboardUI();
+          closeProfileEditModal();
+          if (window.ToastManager) {
+            ToastManager.success('Stall details updated and saved successfully!');
+          }
+        }
+      }
+    }
+
+    // =========================================================================
+    // MENU ITEM MODAL LOGIC (ADD / EDIT / DELETE)
+    // =========================================================================
+    function openAddMenuItemModal() {
+      document.getElementById('menuItemIndex').value = '-1';
+      document.getElementById('menuItemModalTitle').textContent = 'Add Menu Item';
+      document.getElementById('btnSaveMenuItem').textContent = 'Add Item';
+      document.getElementById('menuItemName').value = '';
+      document.getElementById('menuItemPrice').value = '';
+      document.getElementById('menuItemDesc').value = '';
+
+      const modal = document.getElementById('menuItemModalBackdrop');
+      if (modal) modal.classList.add('active');
+    }
+
+    function openEditMenuItemModal(index) {
+      if (!currentVendorData || !currentVendorData.menuItems || !currentVendorData.menuItems[index]) return;
+      const item = currentVendorData.menuItems[index];
+
+      document.getElementById('menuItemIndex').value = String(index);
+      document.getElementById('menuItemModalTitle').textContent = 'Edit Menu Item';
+      document.getElementById('btnSaveMenuItem').textContent = 'Save Changes';
+      document.getElementById('menuItemName').value = item.name || '';
+      document.getElementById('menuItemPrice').value = item.price || '';
+      document.getElementById('menuItemDesc').value = item.desc || '';
+
+      const modal = document.getElementById('menuItemModalBackdrop');
+      if (modal) modal.classList.add('active');
+    }
+
+    function closeMenuItemModal() {
+      const modal = document.getElementById('menuItemModalBackdrop');
+      if (modal) modal.classList.remove('active');
+    }
+
+    async function saveMenuItemForm(e) {
+      e.preventDefault();
+      if (!currentActiveVendorId) return;
+
+      const idx = parseInt(document.getElementById('menuItemIndex').value, 10);
+      const name = document.getElementById('menuItemName').value;
+      const price = document.getElementById('menuItemPrice').value;
+      const desc = document.getElementById('menuItemDesc').value;
+
+      if (!name || !price) return;
+
+      if (idx === -1) {
+        // Add new
+        if (window.StreetKartStore) {
+          await window.StreetKartStore.addMenuItem(currentActiveVendorId, { name, price, desc, available: true });
+        }
+      } else {
+        // Update existing
+        if (window.StreetKartStore) {
+          await window.StreetKartStore.updateMenuItem(currentActiveVendorId, idx, { name, price, desc });
+        }
+      }
+
+      // Reload fresh vendor data
+      currentVendorData = await window.StreetKartStore.getVendorById(currentActiveVendorId);
+      renderMenuList();
+      closeMenuItemModal();
+
+      if (window.ToastManager) {
+        ToastManager.success(idx === -1 ? 'New menu item added!' : 'Menu item updated!');
+      }
+    }
+
+    async function deleteMenuItem(index) {
+      if (!currentVendorData || !currentVendorData.menuItems || !currentVendorData.menuItems[index]) return;
+      const item = currentVendorData.menuItems[index];
+      if (!confirm(`Are you sure you want to remove "${item.name}" from your stall menu?`)) {
+        return;
+      }
+
+      if (window.StreetKartStore) {
+        await window.StreetKartStore.deleteMenuItem(currentActiveVendorId, index);
+      }
+
+      currentVendorData = await window.StreetKartStore.getVendorById(currentActiveVendorId);
+      renderMenuList();
+
+      if (window.ToastManager) {
+        ToastManager.info(`Removed "${item.name}" from stall menu.`);
+      }
+    }
+
+    function updateCartSpotLocation() {
+      if (window.ToastManager) {
+        ToastManager.success('📍 Cart location updated to current Indiranagar GPS spot!');
+      }
+    }
+
+    function shareVendorWhatsApp() {
+      const url = window.location.origin + '/vendor-details.html?id=' + (currentActiveVendorId || '1');
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url);
+      }
+      if (window.ToastManager) {
+        ToastManager.success('📲 Stall link copied! Share it on WhatsApp with neighbours.');
+      }
+    }
+  </script>
+</body>
+
+</html>

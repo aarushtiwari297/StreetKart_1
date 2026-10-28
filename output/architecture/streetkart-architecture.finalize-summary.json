@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "C:\\Users\\aarus\\OneDrive\\Desktop\\streetkart\\.archify\\architecture-streetkart-20261024-211200\\candidate.json",
+    "sha256": "676b194e4cd136afc1fbe4aa835b1a0a390863e8936befeec8cd16a753cb162c",
+    "bytes": 7039
+  },
+  "artifact": {
+    "path": "C:\\Users\\aarus\\OneDrive\\Desktop\\streetkart\\output\\architecture\\streetkart-architecture.html",
+    "sha256": "d33a9ea8c60e93d11644167816e42207f4cdabcabf7b2cbff6368ad588aeea3c",
+    "bytes": 831194
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "C:\\Users\\aarus\\OneDrive\\Desktop\\streetkart\\output\\architecture\\streetkart-architecture.finalize.json",
+    "summaryReceipt": "C:\\Users\\aarus\\OneDrive\\Desktop\\streetkart\\output\\architecture\\streetkart-architecture.finalize-summary.json",
+    "browserCheckReceipt": "C:\\Users\\aarus\\OneDrive\\Desktop\\streetkart\\output\\architecture\\streetkart-architecture.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-24T12:56:29.026Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 4062,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

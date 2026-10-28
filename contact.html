@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Get in touch with the StreetKart team. Hyperlocal vendor onboarding and community support.">
+    <title>Contact Us — StreetKart | Hyperlocal Vendor Discovery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:ital,wght@0,600;0,700;0,800;0,900;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/index.css">
+</head>
+
+<body>
+    <!-- Top Navigation Bar (Stitch Design) -->
+    <header class="navbar navbar-stitch">
+        <div class="navbar-container">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <a href="index.html" class="navbar-logo">
+                    <svg width="38" height="38" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 60 80 L 70 80 L 85 140 L 140 140 L 150 100 L 75 100" stroke="#C04A05" stroke-width="8"
+                            fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle cx="90" cy="150" r="6" fill="#C04A05" />
+                        <circle cx="130" cy="150" r="6" fill="#C04A05" />
+                        <path d="M 95 90 Q 110 85 125 90" stroke="#2B662A" stroke-width="6" fill="none"
+                            stroke-linecap="round" />
+                        <line x1="95" y1="90" x2="95" y2="105" stroke="#2B662A" stroke-width="4" />
+                        <line x1="125" y1="90" x2="125" y2="105" stroke="#2B662A" stroke-width="4" />
+                        <rect x="90" y="105" width="40" height="15" fill="#2B662A" rx="2" />
+                    </svg>
+                    <span style="font-family: 'Epilogue', sans-serif; font-weight: 800; font-size: 1.35rem; letter-spacing: -0.03em;">
+                        <span style="color: var(--color-brand-green);">Street</span><span style="color: var(--color-brand-orange);">Kart</span>
+                    </span>
+                </a>
+                <span class="brand-live-pill" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.65rem; border-radius: 9999px; background: rgba(43, 102, 42, 0.1); color: var(--color-brand-green); font-size: 0.75rem; font-weight: 700; border: 1px solid rgba(43, 102, 42, 0.25);">
+                    <span style="width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 6px #22c55e;"></span>
+                    SUPPORT
+                </span>
+                <button class="location-context-btn" title="Click to change Lucknow discovery zone">
+                    <span class="material-symbols-outlined" style="color: var(--color-secondary); font-size: 16px;">location_on</span>
+                    <span>Lucknow, UP</span>
+                    <span class="material-symbols-outlined" style="font-size: 14px; color: var(--color-outline);">arrow_drop_down</span>
+                </button>
+            </div>
+
+            <button class="navbar-toggle" aria-label="Toggle menu">☰</button>
+
+            <ul class="navbar-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="browse.html">Explore Stalls</a></li>
+                <li><a href="about.html">Our Story</a></li>
+                <li><a href="contact.html" style="color: var(--color-brand-green); font-weight: 700;">Support</a></li>
+                <li><a href="vendor-dashboard.html" style="color: var(--color-brand-orange); font-weight: 600;">My Stall</a></li>
+                <li>
+                    <a href="vendor-signup.html" class="btn btn-primary" style="padding: 0.45rem 1rem; font-size: 0.85rem; border-radius: 9999px; display: inline-flex; align-items: center; gap: 0.4rem;">
+                        <span>Dukaan Jodein</span>
+                        <span>→</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Contact Section -->
+    <section class="section">
+        <div class="container">
+            <div class="text-center mb-xl">
+                <h1>Get In Touch</h1>
+                <p style="font-size: 1.125rem; color: var(--color-gray-600);">
+                    Have questions? We'd love to hear from you.
+                </p>
+            </div>
+
+            <div class="grid grid-2" style="align-items: start;">
+                <!-- Contact Form -->
+                <div class="card">
+                    <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Send Us a Message</h2>
+                    <form id="contactForm"
+                        onsubmit="event.preventDefault(); alert('Thank you for your message! We\'ll get back to you soon.');">
+                        <div class="form-group">
+                            <label for="name" class="form-label">Name *</label>
+                            <input type="text" id="name" name="name" class="form-input" placeholder="Your name"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email *</label>
+                            <input type="email" id="email" name="email" class="form-input"
+                                placeholder="your.email@example.com" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subject" class="form-label">Subject *</label>
+                            <input type="text" id="subject" name="subject" class="form-input"
+                                placeholder="What is this regarding?" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message" class="form-label">Message *</label>
+                            <textarea id="message" name="message" class="form-textarea" placeholder="Tell us more..."
+                                required style="min-height: 150px;"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Contact Information -->
+                <div>
+                    <div class="card mb-lg">
+                        <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Contact Information</h2>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <div style="display: flex; align-items: start; gap: 1rem; margin-bottom: 1rem;">
+                                <div style="font-size: 1.5rem;">📧</div>
+                                <div>
+                                    <h3 style="font-size: 1rem; margin-bottom: 0.25rem;">Email</h3>
+                                    <a href="mailto:hello@streetkart.in"
+                                        style="color: var(--color-primary-600); font-weight: 500;">
+                                        hello@streetkart.in
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; align-items: start; gap: 1rem; margin-bottom: 1rem;">
+                                <div style="font-size: 1.5rem;">📱</div>
+                                <div>
+                                    <h3 style="font-size: 1rem; margin-bottom: 0.25rem;">Phone</h3>
+                                    <a href="tel:+911234567890"
+                                        style="color: var(--color-primary-600); font-weight: 500;">
+                                        +91 123 456 7890
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; align-items: start; gap: 1rem;">
+                                <div style="font-size: 1.5rem;">📍</div>
+                                <div>
+                                    <h3 style="font-size: 1rem; margin-bottom: 0.25rem;">Address</h3>
+                                    <p style="color: var(--color-gray-600); margin-bottom: 0;">
+                                        Innovation Hub, Sector 62<br>
+                                        Noida, Uttar Pradesh 201301
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card"
+                        style="background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-900) 100%); color: white;">
+                        <h2 style="font-size: 1.5rem; color: white; margin-bottom: 1rem;">For Vendors</h2>
+                        <p style="color: rgba(255, 255, 255, 0.9); margin-bottom: 1.5rem;">
+                            Need help setting up your profile? We're here to assist you every step of the way.
+                        </p>
+                        <a href="vendor-signup.html" class="btn btn-accent" style="width: 100%;">
+                            Create Vendor Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="section" style="background-color: white;">
+        <div class="container">
+            <h2 class="text-center mb-xl">Frequently Asked Questions</h2>
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3 style="color: var(--color-primary-600); margin-bottom: 0.75rem; font-size: 1.125rem;">Is StreetKart really free?</h3>
+                    <p style="margin-bottom: 0;">
+                        Yes! StreetKart is completely free for vendors. Our mission is to provide digital visibility to
+                        all local vendors, regardless of their ability to pay.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3 style="color: var(--color-primary-600); margin-bottom: 0.75rem; font-size: 1.125rem;">Do you handle deliveries?</h3>
+                    <p style="margin-bottom: 0;">
+                        No, StreetKart is a discovery platform, not a delivery service. We help customers find vendors,
+                        but transactions happen directly between customers and vendors.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3 style="color: var(--color-primary-600); margin-bottom: 0.75rem; font-size: 1.125rem;">How do I update my
+                        availability?</h3>
+                    <p style="margin-bottom: 0;">
+                        Simply log in to your vendor dashboard and toggle your availability status. It takes just one
+                        click!
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3 style="color: var(--color-primary-600); margin-bottom: 0.75rem; font-size: 1.125rem;">Can I add photos to my profile?
+                    </h3>
+                    <p style="margin-bottom: 0;">
+                        Photo uploads are coming soon! For now, you can add detailed product descriptions to help
+                        customers find you.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3 style="color: var(--color-primary-600); margin-bottom: 0.75rem; font-size: 1.125rem;">Which cities are you available
+                        in?</h3>
+                    <p style="margin-bottom: 0;">
+                        We're currently expanding across major Indian cities. If your city isn't listed yet, sign up
+                        anyway - we're growing fast!
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3 style="color: var(--color-primary-600); margin-bottom: 0.75rem; font-size: 1.125rem;">How can I partner with
+                        StreetKart?</h3>
+                    <p style="margin-bottom: 0;">
+                        We welcome partnerships with NGOs, community organizations, and local governments. Contact us at
+                        <a href="mailto:partnerships@streetkart.in">partnerships@streetkart.in</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>StreetKart</h4>
+                    <p>Digital visibility for local street vendors.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>For Vendors</h4>
+                    <ul class="footer-links">
+                        <li><a href="vendor-signup.html">Create Profile</a></li>
+                        <li><a href="vendor-dashboard.html">Dashboard</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>For Customers</h4>
+                    <ul class="footer-links">
+                        <li><a href="browse.html">Browse Vendors</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <ul class="footer-links">
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 StreetKart. Empowering local commerce.</p>
+            </div>
+    <!-- Mobile Bottom Navigation (Stitch) -->
+    <nav class="mobile-bottom-nav">
+        <a href="index.html" class="mobile-nav-item">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </a>
+        <a href="browse.html" class="mobile-nav-item">
+            <span class="nav-icon">🔍</span>
+            <span>Explore</span>
+        </a>
+        <a href="contact.html" class="mobile-nav-item active">
+            <span class="nav-icon">📞</span>
+            <span>Support</span>
+        </a>
+        <a href="vendor-dashboard.html" class="mobile-nav-item">
+            <span class="nav-icon">🏪</span>
+            <span>My Stall</span>
+        </a>
+    </nav>
+
+    <script src="data/vendors.js"></script>
+    <script src="scripts/mock-store.js"></script>
+    <script src="scripts/mock-auth.js"></script>
+    <script src="scripts/supabase-client.js"></script>
+    <script src="scripts/translations.js"></script>
+    <script src="scripts/main.js"></script>
+</body>
+
+</html>

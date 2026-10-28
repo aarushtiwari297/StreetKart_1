@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="description"
+    content="StreetKart - Digital Visibility for Local Street Vendors. Discover nearby vendors and help local businesses thrive.">
+  <title>StreetKart - Digital Visibility for Local Street Vendors</title>
+  <link rel="stylesheet" href="styles/index.css">
+</head>
+
+<body>
+  <!-- Navigation Header with Stitch Location Context & Live Badge -->
+  <nav class="navbar navbar-stitch">
+    <div class="navbar-container">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <a href="index.html" class="navbar-logo" aria-label="StreetKart Home">
+          <svg width="38" height="38" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 60 80 L 70 80 L 85 140 L 140 140 L 150 100 L 75 100" stroke="#E67E22" stroke-width="8" fill="none"
+              stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="90" cy="150" r="6" fill="#E67E22" />
+            <circle cx="130" cy="150" r="6" fill="#E67E22" />
+            <path d="M 95 90 Q 110 85 125 90" stroke="#6CB52D" stroke-width="6" fill="none" stroke-linecap="round" />
+            <line x1="95" y1="90" x2="95" y2="105" stroke="#6CB52D" stroke-width="4" />
+            <line x1="125" y1="90" x2="125" y2="105" stroke="#6CB52D" stroke-width="4" />
+            <rect x="90" y="105" width="40" height="15" fill="#6CB52D" rx="2" />
+          </svg>
+          <span style="color: var(--color-brand-green); font-weight: 800;">Street</span><span style="color: var(--color-brand-orange); font-weight: 800;">Kart</span>
+          <span class="brand-live-pill">Live</span>
+        </a>
+
+        <!-- Location Context Indicator from Stitch Screen -->
+        <button class="location-context-btn" title="Click to change Lucknow discovery zone">
+          <span class="material-symbols-outlined" style="color: var(--color-secondary); font-size: 16px;">location_on</span>
+          <span>Lucknow, UP</span>
+          <span class="material-symbols-outlined" style="font-size: 14px; color: var(--color-outline);">arrow_drop_down</span>
+        </button>
+      </div>
+
+      <button class="navbar-toggle" aria-label="Toggle menu">☰</button>
+      <ul class="navbar-menu">
+        <li style="display: none;"><a href="index.html" class="active" data-i18n="nav_home">Home</a></li>
+        <li style="display: none;"><a href="browse.html" data-i18n="nav_browse">Browse Vendors</a></li>
+        <li style="display: none;"><a href="vendor-dashboard.html">My Stall</a></li>
+        <li style="display: none;"><a href="about.html" data-i18n="nav_about">About</a></li>
+        <li style="display: none;"><a href="contact.html" data-i18n="nav_contact">Contact</a></li>
+        <li style="display: none;"><a href="vendor-signup.html" class="btn btn-primary btn-sm" data-i18n="nav_signup">+ Add Stall</a></li>
+        <li class="auth-nav-item">
+          <button type="button" class="auth-btn-login" onclick="StreetKartAuthUI.open()" style="font-weight: 700; background-color: var(--color-primary); color: white; border: none; padding: 0.5rem 1.15rem; border-radius: var(--radius-full); box-shadow: var(--shadow-sm); cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;">
+            <span class="material-symbols-outlined" style="font-size: 16px;">lock_open</span>
+            <span>Sign In / Sign Up</span>
+          </button>
+        </li>
+        <li>
+          <div class="lang-switcher"></div>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+    <div id="homeHeroContainer" class="welcome-guest-hero animate-fade-in-up">
+      <!-- Hyperlocal Pill -->
+      <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--color-primary-fixed); color: var(--color-primary); padding: 0.4rem 1rem; border-radius: var(--radius-full); font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1.25rem;">
+        <span class="material-symbols-outlined" style="font-size: 17px;">verified</span>
+        <span>Hyperlocal Street Food &amp; Artisan Network &bull; Lucknow, UP</span>
+      </div>
+
+      <!-- Clean Minimal Headline -->
+      <h1 style="font-size: 2.75rem; font-weight: 800; line-height: 1.15; color: var(--color-on-surface); margin-bottom: 0.75rem; letter-spacing: -0.02em;">
+        Digital Visibility for Street Vendors
+      </h1>
+
+      <!-- Vernacular Motto Badge -->
+      <div style="margin-bottom: 1rem;">
+        <div class="motto-badge" style="display: inline-flex; background: rgba(230, 126, 34, 0.12); color: var(--color-secondary); padding: 0.4rem 1rem; border-radius: var(--radius-full); font-weight: 700; font-size: 1rem; align-items: center; gap: 0.5rem; border: 1px solid rgba(230, 126, 34, 0.3);">
+          <span class="material-symbols-outlined" style="font-size: 20px;">campaign</span>
+          <span>&ldquo;Local dikhega, tabhi bikega&rdquo;</span>
+        </div>
+      </div>
+
+      <p style="font-size: 1.125rem; color: var(--color-on-surface-variant); max-width: 620px; margin: 0 auto 2.25rem auto; line-height: 1.6;">
+        Connecting Lucknow's neighborhoods with everyday food stalls, pushcarts, tea masters, and local artisans. Choose your role to begin:
+      </p>
+
+      <!-- Clean 2-Role Choice Cards -->
+      <div class="welcome-role-grid">
+        <!-- Role 1: Customer / Food Lover -->
+        <div class="welcome-role-card">
+          <div>
+            <div class="welcome-role-icon" style="background: rgba(43, 102, 42, 0.12); color: var(--color-primary);">
+              🛍️
+            </div>
+            <div style="display: inline-block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-primary); background: var(--color-primary-fixed); padding: 0.2rem 0.6rem; border-radius: var(--radius-full); margin-bottom: 0.5rem;">
+              Customer / Food Lover
+            </div>
+            <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--color-on-surface); margin: 0 0 0.5rem 0;">
+              Discover &amp; Taste
+            </h2>
+            <p style="font-size: 0.875rem; color: var(--color-on-surface-variant); line-height: 1.55; margin-bottom: 1.5rem;">
+              Explore 25 curated street stalls in Hazratganj, Chowk, Aminabad &amp; Gomti Nagar. Check live open status, signature menus, and reserve items in seconds.
+            </p>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+            <button type="button" class="btn btn-primary" onclick="StreetKartAuthUI.openForRole('customer')" style="width: 100%; font-weight: 700; padding: 0.75rem 1rem; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+              <span class="material-symbols-outlined" style="font-size: 18px;">login</span>
+              <span>Sign In / Sign Up as Customer</span>
+            </button>
+            <a href="browse.html" class="btn btn-outline" style="width: 100%; font-weight: 600; padding: 0.65rem 1rem; border-radius: var(--radius-lg); text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: var(--color-primary); border-color: var(--color-outline-variant);">
+              <span class="material-symbols-outlined" style="font-size: 18px;">storefront</span>
+              <span>Continue as Guest (Browse Stalls) &rarr;</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Role 2: Street Vendor / Stall Owner -->
+        <div class="welcome-role-card vendor">
+          <div>
+            <div class="welcome-role-icon" style="background: rgba(230, 126, 34, 0.12); color: var(--color-secondary);">
+              👨‍🍳
+            </div>
+            <div style="display: inline-block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-secondary); background: rgba(230, 126, 34, 0.15); padding: 0.2rem 0.6rem; border-radius: var(--radius-full); margin-bottom: 0.5rem;">
+              Street Vendor / Stall Owner
+            </div>
+            <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--color-on-surface); margin: 0 0 0.5rem 0;">
+              Manage Your Cart
+            </h2>
+            <p style="font-size: 0.875rem; color: var(--color-on-surface-variant); line-height: 1.55; margin-bottom: 1.5rem;">
+              Put your cart on the digital map for free. Update live status, manage your menu items, track orders, and boost daily earnings with 0% commission.
+            </p>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.65rem;">
+            <button type="button" class="btn btn-secondary" onclick="StreetKartAuthUI.openForRole('vendor')" style="width: 100%; font-weight: 700; padding: 0.75rem 1rem; border-radius: var(--radius-lg); background-color: var(--color-secondary); color: white; border: none; display: flex; align-items: center; justify-content: center; gap: 0.4rem;">
+              <span class="material-symbols-outlined" style="font-size: 18px;">store</span>
+              <span>Vendor Sign In / Register</span>
+            </button>
+            <a href="vendor-signup.html" class="btn btn-outline" style="width: 100%; font-weight: 600; padding: 0.65rem 1rem; border-radius: var(--radius-lg); text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.35rem; color: var(--color-secondary); border-color: rgba(230, 126, 34, 0.4);">
+              <span class="material-symbols-outlined" style="font-size: 18px;">add_circle</span>
+              <span>Register New Stall Free &rarr;</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick 1-Click Interactive Demo Strip -->
+      <div class="welcome-quick-demo-strip">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 18px;">⚡</span>
+          <span style="font-size: 0.8125rem; font-weight: 700; color: var(--color-on-surface);">Quick Demo Access:</span>
+          <span style="font-size: 0.75rem; color: var(--color-on-surface-variant);">(Preloaded Lucknow test accounts)</span>
+        </div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button type="button" class="btn btn-sm" onclick="StreetKartAuthUI.quickDemoLogin('customer')" style="background: white; border: 1px solid var(--color-outline-variant); color: var(--color-primary); font-weight: 700; border-radius: var(--radius-full); display: inline-flex; align-items: center; gap: 0.35rem; box-shadow: var(--shadow-sm);">
+            <span>🛍️</span>
+            <span>Demo Customer (Priya)</span>
+          </button>
+          <button type="button" class="btn btn-sm" onclick="StreetKartAuthUI.quickDemoLogin('vendor')" style="background: white; border: 1px solid var(--color-outline-variant); color: var(--color-secondary); font-weight: 700; border-radius: var(--radius-full); display: inline-flex; align-items: center; gap: 0.35rem; box-shadow: var(--shadow-sm);">
+            <span>👨‍🍳</span>
+            <span>Demo Vendor (Sharma Ji)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Trust Badges & Local Coverage Footer -->
+      <div style="display: flex; justify-content: center; gap: 1.5rem; margin-top: 2rem; flex-wrap: wrap; font-size: 0.8125rem; color: var(--color-on-surface-variant);">
+        <span style="display: inline-flex; align-items: center; gap: 0.35rem;">
+          <span class="material-symbols-outlined" style="font-size: 16px; color: var(--color-primary);">verified</span>
+          100% Free Forever &bull; Zero Commission
+        </span>
+        <span style="display: inline-flex; align-items: center; gap: 0.35rem;">
+          <span class="material-symbols-outlined" style="font-size: 16px; color: var(--color-primary);">location_on</span>
+          Hazratganj &bull; Chowk &bull; Aminabad &bull; Gomti Nagar &bull; Alambagh &bull; Indira Nagar
+        </span>
+      </div>
+    </div>
+  </main>
+
+  <!-- Mobile Bottom Navigation Bar (Stitch Screen Shell) -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation" style="display: none;">
+    <a href="index.html" class="mobile-nav-link active">
+      <span class="material-symbols-outlined">explore</span>
+      <span>Discover</span>
+    </a>
+    <a href="browse.html" class="mobile-nav-link">
+      <span class="material-symbols-outlined">grid_view</span>
+      <span>Browse</span>
+    </a>
+    <a href="vendor-dashboard.html" class="mobile-nav-link">
+      <span class="material-symbols-outlined">store</span>
+      <span>My Stall</span>
+    </a>
+    <a href="vendor-signup.html" class="mobile-nav-link">
+      <span class="material-symbols-outlined">add_circle</span>
+      <span>Add Stall</span>
+    </a>
+  </nav>
+
+  <!-- Preserved Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>StreetKart</h4>
+          <p>Digital visibility for local street vendors.</p>
+          <p style="font-size: 0.8125rem; color: rgba(255, 255, 255, 0.7); margin-top: 0.5rem; font-style: italic;">
+            "Local dikhega, tabhi bikega"
+          </p>
+        </div>
+        <div class="footer-section">
+          <h4>For Vendors</h4>
+          <ul class="footer-links">
+            <li><a href="vendor-signup.html">Create Stall Profile</a></li>
+            <li><a href="vendor-dashboard.html">Vendor Dashboard (My Stall)</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>For Customers</h4>
+          <ul class="footer-links">
+            <li><a href="browse.html">Browse Stalls</a></li>
+            <li><a href="about.html">About StreetKart</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Connect</h4>
+          <ul class="footer-links">
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 StreetKart. Empowering local commerce across India.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts: Vendors Data first, then Mock Store, Mock Auth, Supabase client, Translations, and Main Controller -->
+  <script src="data/vendors.js"></script>
+  <script src="scripts/mock-store.js"></script>
+  <script src="scripts/mock-auth.js"></script>
+  <script src="scripts/supabase-client.js"></script>
+  <script src="scripts/translations.js"></script>
+  <script src="scripts/main.js"></script>
+
+</body>
+
+</html>

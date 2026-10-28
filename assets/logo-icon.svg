@@ -1,0 +1,28 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Shopping Cart (Orange) -->
+  <g id="cart">
+    <!-- Cart body -->
+    <path d="M 60 80 L 70 80 L 85 140 L 140 140 L 150 100 L 75 100" 
+          stroke="#E67E22" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Cart wheels -->
+    <circle cx="90" cy="150" r="6" fill="#E67E22"/>
+    <circle cx="130" cy="150" r="6" fill="#E67E22"/>
+  </g>
+  
+  <!-- Street Vendor Stall (Green) -->
+  <g id="stall">
+    <!-- Awning -->
+    <path d="M 95 90 Q 110 85 125 90" stroke="#6CB52D" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <line x1="95" y1="90" x2="95" y2="105" stroke="#6CB52D" stroke-width="4"/>
+    <line x1="125" y1="90" x2="125" y2="105" stroke="#6CB52D" stroke-width="4"/>
+    <!-- Counter -->
+    <rect x="90" y="105" width="40" height="15" fill="#6CB52D" rx="2"/>
+  </g>
+  
+  <!-- Location Pin (Green) -->
+  <g id="location">
+    <path d="M 160 60 Q 160 45 145 45 Q 130 45 130 60 Q 130 75 145 95 Q 160 75 160 60 Z" 
+          fill="#6CB52D"/>
+    <circle cx="145" cy="60" r="5" fill="white"/>
+  </g>
+</svg>
