@@ -12,6 +12,14 @@
   // Demo Vendor is linked to verified Vendor ID: 1 ("Awadh Chaat Corner", Hazratganj, Lucknow)
   const DEMO_ACCOUNTS = [
     {
+      id: 'usr_demo_admin_1',
+      name: 'StreetKart Community Admin',
+      email: 'admin@streetkart.in',
+      role: 'admin',
+      locality: 'Hazratganj, Lucknow',
+      avatar: '🛡️'
+    },
+    {
       id: 'usr_demo_vendor_1',
       name: 'Awadh Chaat Master',
       email: 'vendor@streetkart.in',
@@ -34,6 +42,7 @@
   // In-memory or pre-populated demo credentials hash map (simulated non-plaintext check)
   // In demo mode, passwords are verified against pre-shared demo credentials without storing raw passwords in localStorage
   const DEMO_CREDENTIALS = {
+    'admin@streetkart.in': 'admin123',
     'vendor@streetkart.in': 'lucknow123',
     'customer@streetkart.in': 'lucknow123'
   };
@@ -83,6 +92,14 @@
     isAuthenticated() {
       const session = getActiveSession();
       return Boolean(session && session.token);
+    },
+
+    /**
+     * Check if user has administrator authorization
+     */
+    isAdmin() {
+      const session = getActiveSession();
+      return Boolean(session && session.token && session.role === 'admin');
     },
 
     /**

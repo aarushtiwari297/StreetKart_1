@@ -772,7 +772,7 @@ function filterVendors(category = 'All', openOnly = false, searchQuery = '') {
     // Open status match
     const openMatch = !openOnly || vendor.isOpen;
 
-    // Search query match across Name, Locality, Category, Landmark, and Products
+    // Search query match across Name, Locality, Category, Landmark, and Products (both original and localized)
     let searchMatch = true;
     if (q) {
       const inName = (vendor.name || '').toLowerCase().includes(q);
@@ -780,7 +780,19 @@ function filterVendors(category = 'All', openOnly = false, searchQuery = '') {
       const inCategory = (vendor.category || '').toLowerCase().includes(q);
       const inProducts = Array.isArray(vendor.products) && vendor.products.some(p => p.toLowerCase().includes(q));
       const inLandmark = (vendor.landmark || '').toLowerCase().includes(q);
-      searchMatch = inName || inLocality || inCategory || inProducts || inLandmark;
+
+      let inLocalized = false;
+      if (typeof window !== 'undefined' && window.StreetKartI18n && typeof window.StreetKartI18n.getLocalizedVendor === 'function') {
+        const loc = window.StreetKartI18n.getLocalizedVendor(vendor);
+        const inLocName = (loc.name || '').toLowerCase().includes(q);
+        const inLocDesc = (loc.description || '').toLowerCase().includes(q);
+        const inLocCategory = (loc.categoryDisplay || '').toLowerCase().includes(q);
+        const inLocLandmark = (loc.landmark || '').toLowerCase().includes(q);
+        const inLocProducts = Array.isArray(loc.products) && loc.products.some(p => p.toLowerCase().includes(q));
+        inLocalized = inLocName || inLocDesc || inLocCategory || inLocLandmark || inLocProducts;
+      }
+
+      searchMatch = inName || inLocality || inCategory || inProducts || inLandmark || inLocalized;
     }
 
     return categoryMatch && openMatch && searchMatch;
@@ -836,10 +848,12 @@ function createVendorProfile(newVendorData) {
     since: new Date().getFullYear().toString(),
     setupType: "Mobile Thela (Cart)",
     timings: newVendorData.timings || "8:00 AM – 9:00 PM",
+    verification_status: 'pending',
     verified: false,
     phone: newVendorData.phone || "+91 522 000 0000",
     description: newVendorData.description || "Fresh daily produce and authentic local items straight from our street cart.",
-    imageUrl: newVendorData.imageUrl || "assets/logo-icon.svg",
+    imageUrl: newVendorData.imageUrl || newVendorData.stallPhoto || "assets/logo-icon.svg",
+    createdAt: new Date().toISOString(),
     menuItems: []
   };
 
@@ -857,5 +871,6 @@ window.StreetKartData = {
   filterVendors,
   getCategories,
   updateVendorAvailability,
-  createVendorProfile
+  createVendorProfile,
+  saveVendors
 };

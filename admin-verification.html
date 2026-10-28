@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="description" content="StreetKart Administrator Verification Portal for Vendor Applications">
+  <title>Admin Verification Queue - StreetKart</title>
+  <link rel="stylesheet" href="styles/index.css">
+  <style>
+    .admin-card {
+      background: var(--color-surface-container-lowest);
+      border: 1px solid var(--color-outline-variant);
+      border-radius: var(--radius-xl);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+    .admin-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-outline);
+    }
+    .stall-thumb-preview {
+      width: 90px;
+      height: 90px;
+      border-radius: var(--radius-lg);
+      object-fit: cover;
+      border: 1px solid var(--color-outline-variant);
+      background-color: var(--color-surface-container-low);
+      cursor: pointer;
+    }
+    .status-badge-pending {
+      background-color: #FFF3CD;
+      color: #856404;
+      border: 1px solid #FFEEBA;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .modal-backdrop-reject {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+    .modal-backdrop-reject.active {
+      display: flex;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navigation Header -->
+  <nav class="navbar navbar-stitch">
+    <div class="navbar-container">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <a href="index.html" class="navbar-logo" aria-label="StreetKart Home">
+          <svg width="38" height="38" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 60 80 L 70 80 L 85 140 L 140 140 L 150 100 L 75 100" stroke="#E67E22" stroke-width="8" fill="none"
+              stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="90" cy="150" r="6" fill="#E67E22" />
+            <circle cx="130" cy="150" r="6" fill="#E67E22" />
+            <path d="M 95 90 Q 110 85 125 90" stroke="#6CB52D" stroke-width="6" fill="none" stroke-linecap="round" />
+            <line x1="95" y1="90" x2="95" y2="105" stroke="#6CB52D" stroke-width="4" />
+            <line x1="125" y1="90" x2="125" y2="105" stroke="#6CB52D" stroke-width="4" />
+            <rect x="90" y="105" width="40" height="15" fill="#6CB52D" rx="2" />
+          </svg>
+          <span style="color: var(--color-brand-green); font-weight: 800;">Street</span><span style="color: var(--color-brand-orange); font-weight: 800;">Kart</span>
+          <span style="background: var(--color-secondary); color: white; font-size: 0.6875rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: var(--radius-full); text-transform: uppercase;">Admin</span>
+        </a>
+
+        <div style="font-size: 0.8125rem; color: var(--color-on-surface-variant); display: flex; align-items: center; gap: 0.35rem;">
+          <span class="material-symbols-outlined" style="font-size: 16px; color: var(--color-secondary);">shield</span>
+          <span>Verification Portal</span>
+        </div>
+      </div>
+
+      <button class="navbar-toggle" aria-label="Toggle menu">☰</button>
+      <ul class="navbar-menu">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="browse.html">Browse Stalls</a></li>
+        <li><a href="vendor-dashboard.html">My Stall</a></li>
+        <li><a href="admin-verification.html" class="active">Admin Queue</a></li>
+        <li><div class="lang-switcher"></div></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="container" style="padding-top: 1.75rem; padding-bottom: 4rem;">
+    <!-- Backend Status Banner -->
+    <div id="backendModeBanner" style="margin-bottom: 1.5rem; border-radius: var(--radius-lg); padding: 0.85rem 1.25rem; font-size: 0.875rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; border: 1px solid var(--color-outline-variant);">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span id="backendModeIcon" class="material-symbols-outlined" style="font-size: 20px;">info</span>
+        <span id="backendModeText">Checking database connection...</span>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="showBackendSetupModal()" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;">
+        Setup Guide
+      </button>
+    </div>
+
+    <!-- Admin Authorization Gate (Rendered when user is NOT an authorized admin) -->
+    <div id="adminAuthGate" style="display: none; max-width: 600px; margin: 3rem auto; text-align: center;" class="animate-scale-in">
+      <div class="card" style="border: 1px solid var(--color-outline-variant); border-radius: var(--radius-2xl); padding: 2.5rem 2rem; background: var(--color-surface-container-lowest);">
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--color-secondary-fixed); color: var(--color-secondary); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem auto;">
+          <span class="material-symbols-outlined" style="font-size: 32px;">lock</span>
+        </div>
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--color-on-surface); margin-bottom: 0.5rem;">
+          Administrator Access Required
+        </h2>
+        <p style="font-size: 0.9375rem; color: var(--color-on-surface-variant); line-height: 1.5; margin-bottom: 1.5rem;">
+          Only authorized StreetKart administrators can review vendor verification applications and grant verified listing badges.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <button type="button" class="btn btn-primary" onclick="loginAsDemoAdmin()" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+            <span class="material-symbols-outlined">shield_person</span>
+            <span>Sign In as Demo Community Admin</span>
+          </button>
+          <a href="index.html" class="btn btn-outline">
+            Return to Homepage
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Verification Dashboard (Rendered when user is authorized) -->
+    <div id="adminDashboardContent" style="display: none;">
+      <!-- Page Header -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+            <h1 style="font-size: 1.875rem; font-weight: 800; color: var(--color-on-surface); margin: 0;">
+              Vendor Verification Queue
+            </h1>
+            <span id="pendingCountBadge" class="status-badge-pending">0 Pending</span>
+          </div>
+          <p style="font-size: 0.9375rem; color: var(--color-on-surface-variant); margin: 0;">
+            Review submitted stall photos, names, and cart locations to approve or reject community listings.
+          </p>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <button type="button" class="btn btn-outline btn-sm" onclick="loadApplications()" title="Refresh Application Queue">
+            <span class="material-symbols-outlined" style="font-size: 18px;">refresh</span>
+            <span>Refresh</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Strip -->
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
+        <div style="background: var(--color-surface-container-low); padding: 1rem 1.25rem; border-radius: var(--radius-lg); border: 1px solid var(--color-outline-variant);">
+          <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-on-surface-variant); text-transform: uppercase;">Pending Review</span>
+          <span id="metricPending" style="display: block; font-size: 1.75rem; font-weight: 800; color: #856404; margin-top: 0.25rem;">0</span>
+        </div>
+        <div style="background: var(--color-surface-container-low); padding: 1rem 1.25rem; border-radius: var(--radius-lg); border: 1px solid var(--color-outline-variant);">
+          <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-on-surface-variant); text-transform: uppercase;">Approved Listings</span>
+          <span id="metricApproved" style="display: block; font-size: 1.75rem; font-weight: 800; color: var(--color-primary); margin-top: 0.25rem;">0</span>
+        </div>
+        <div style="background: var(--color-surface-container-low); padding: 1rem 1.25rem; border-radius: var(--radius-lg); border: 1px solid var(--color-outline-variant);">
+          <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-on-surface-variant); text-transform: uppercase;">Rejected</span>
+          <span id="metricRejected" style="display: block; font-size: 1.75rem; font-weight: 800; color: var(--color-error); margin-top: 0.25rem;">0</span>
+        </div>
+      </div>
+
+      <!-- Applications Container -->
+      <div id="applicationsContainer">
+        <div style="text-align: center; padding: 3rem; color: var(--color-on-surface-variant);">
+          <span class="material-symbols-outlined" style="font-size: 40px; animation: pulse 1.5s infinite;">hourglass_top</span>
+          <p style="margin-top: 0.5rem; font-weight: 600;">Loading vendor applications...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Rejection Modal Backdrop -->
+  <div id="rejectModalBackdrop" class="modal-backdrop-reject">
+    <div style="background: white; border-radius: var(--radius-xl); max-width: 460px; width: 100%; padding: 1.75rem; box-shadow: var(--shadow-xl); border: 1px solid var(--color-outline-variant);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="font-size: 1.125rem; font-weight: 800; margin: 0; color: var(--color-error);">
+          Reject Application
+        </h3>
+        <button type="button" class="btn-icon-call" onclick="closeRejectModal()" style="border: none; background: none; cursor: pointer;">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <p style="font-size: 0.875rem; color: var(--color-on-surface-variant); margin-bottom: 1rem;">
+        Please specify a clear reason so the vendor understands how to revise their stall application.
+      </p>
+
+      <input type="hidden" id="rejectVendorId" value="">
+
+      <div class="form-group" style="margin-bottom: 1.25rem;">
+        <label for="rejectionReasonText" class="form-label" style="font-weight: 700;">Reason for Rejection *</label>
+        <textarea id="rejectionReasonText" class="form-textarea" rows="3" placeholder="e.g. Stall photo is unclear; location landmark is missing; invalid items." required></textarea>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+        <button type="button" class="btn btn-outline" onclick="closeRejectModal()">Cancel</button>
+        <button type="button" class="btn btn-error" id="confirmRejectBtn" onclick="submitRejection()" style="background-color: var(--color-error); color: white; font-weight: 700;">
+          Confirm Rejection
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Photo Lightbox Modal -->
+  <div id="photoLightboxModal" class="modal-backdrop-reject" onclick="closePhotoLightbox()">
+    <div style="max-width: 90vw; max-height: 90vh; position: relative;" onclick="event.stopPropagation()">
+      <img id="lightboxImg" src="" alt="Stall Photo Expanded" style="max-width: 100%; max-height: 80vh; border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); display: block;">
+      <button type="button" onclick="closePhotoLightbox()" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="data/vendors.js"></script>
+  <script src="scripts/mock-store.js"></script>
+  <script src="scripts/mock-auth.js"></script>
+  <script src="scripts/supabase-client.js"></script>
+  <script src="scripts/translations.js"></script>
+  <script src="scripts/main.js"></script>
+
+  <script>
+    let activeApplications = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await updateBackendBanner();
+      await checkAdminAccessAndLoad();
+    });
+
+    async function updateBackendBanner() {
+      const banner = document.getElementById('backendModeBanner');
+      const text = document.getElementById('backendModeText');
+      const icon = document.getElementById('backendModeIcon');
+
+      if (!banner || !text || !icon) return;
+
+      const isLive = window.StreetKartAPI && window.StreetKartAPI.isSupabaseActive();
+      if (isLive) {
+        banner.style.backgroundColor = 'var(--color-primary-fixed)';
+        banner.style.borderColor = 'var(--color-primary)';
+        banner.style.color = 'var(--color-on-primary-fixed)';
+        icon.textContent = 'verified_user';
+        text.innerHTML = '<strong>🔒 Supabase Backend Active:</strong> Row Level Security (RLS) & Server-side Authorization Enforced.';
+      } else {
+        banner.style.backgroundColor = 'var(--color-surface-container-low)';
+        banner.style.borderColor = 'var(--color-outline-variant)';
+        banner.style.color = 'var(--color-on-surface)';
+        icon.textContent = 'shield';
+        text.innerHTML = '<strong>⚙️ Local Verification Engine:</strong> Running in local prototype mode. Database RLS ready via SQL migration.';
+      }
+    }
+
+    async function checkAdminAccessAndLoad() {
+      const gate = document.getElementById('adminAuthGate');
+      const dashboard = document.getElementById('adminDashboardContent');
+
+      let isAdmin = false;
+      if (window.StreetKartAPI && typeof window.StreetKartAPI.checkIsAdmin === 'function') {
+        isAdmin = await window.StreetKartAPI.checkIsAdmin();
+      } else if (window.StreetKartAuth) {
+        isAdmin = window.StreetKartAuth.isAdmin();
+      }
+
+      if (!isAdmin) {
+        gate.style.display = 'block';
+        dashboard.style.display = 'none';
+        return;
+      }
+
+      gate.style.display = 'none';
+      dashboard.style.display = 'block';
+      await loadApplications();
+    }
+
+    async function loginAsDemoAdmin() {
+      if (window.StreetKartAuth) {
+        const res = await window.StreetKartAuth.login('admin@streetkart.in', 'admin123');
+        if (res && res.success) {
+          if (window.ToastManager) {
+            ToastManager.success('Signed in as StreetKart Community Admin!');
+          }
+          await checkAdminAccessAndLoad();
+        } else {
+          alert('Could not authenticate as Demo Admin.');
+        }
+      }
+    }
+
+    async function loadApplications() {
+      const container = document.getElementById('applicationsContainer');
+      if (!container) return;
+
+      // Update metrics
+      updateMetrics();
+
+      let pending = [];
+      if (window.StreetKartAPI && typeof window.StreetKartAPI.getPendingApplications === 'function') {
+        pending = await window.StreetKartAPI.getPendingApplications();
+      } else if (window.StreetKartStore) {
+        pending = await window.StreetKartStore.getPendingApplications();
+      }
+
+      activeApplications = pending || [];
+
+      // Update badge
+      const badge = document.getElementById('pendingCountBadge');
+      if (badge) {
+        badge.textContent = `${activeApplications.length} Pending`;
+      }
+
+      if (activeApplications.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="background: var(--color-surface-container-lowest); border-radius: var(--radius-xl); border: 1px dashed var(--color-outline); padding: 3rem 1.5rem; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎉</div>
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--color-on-surface); margin-bottom: 0.35rem;">
+              All Caught Up!
+            </h3>
+            <p style="font-size: 0.9375rem; color: var(--color-on-surface-variant); max-width: 420px; margin: 0 auto 1.5rem auto;">
+              There are currently no vendor applications pending review. Newly onboarded pushcarts and stalls will appear here for verification.
+            </p>
+            <a href="vendor-signup.html" class="btn btn-outline btn-sm">
+              + Test Vendor Signup Flow
+            </a>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = activeApplications.map(app => {
+        const photoUrl = app.image_url || app.imageUrl || app.stallPhoto || 'assets/logo-icon.svg';
+        const formattedDate = app.created_at || app.createdAt ? new Date(app.created_at || app.createdAt).toLocaleDateString('en-IN', {
+          day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        }) : 'Recently Submitted';
+
+        const phone = app.phone || '+91 98765 43210';
+        const rawDigits = phone.replace(/\D/g, '');
+        const cleanPhone = rawDigits.length === 10 ? '91' + rawDigits : rawDigits;
+        const gmapsQuery = encodeURIComponent(`${app.name} ${app.landmark || ''} ${app.locality || 'Lucknow'}`);
+        const waText = encodeURIComponent(`Namaste ${app.name}! We are reviewing your street stall verification application on StreetKart. Please confirm this is your active cart at ${app.locality || 'Lucknow'}.`);
+
+        return `
+          <div class="admin-card" id="app_card_${app.id}">
+            <div style="display: flex; gap: 1.25rem; align-items: flex-start; flex-wrap: wrap;">
+              <!-- Stall Photo Thumbnail -->
+              <div style="text-align: center;">
+                <img src="${photoUrl}" alt="${app.name}" class="stall-thumb-preview" onclick="openPhotoLightbox('${photoUrl}')" title="Click to inspect full photo">
+                <button type="button" class="btn btn-text" onclick="openPhotoLightbox('${photoUrl}')" style="font-size: 0.72rem; padding: 0.2rem; display: block; margin: 0.25rem auto 0 auto; color: var(--color-primary);">
+                  🔍 Inspect Photo
+                </button>
+              </div>
+
+              <!-- Details Info -->
+              <div style="flex: 1; min-width: 260px;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; flex-wrap: wrap;">
+                  <h3 style="font-size: 1.125rem; font-weight: 800; color: var(--color-on-surface); margin: 0;">
+                    ${app.name}
+                  </h3>
+                  <span class="badge badge-primary" style="font-size: 0.6875rem;">${app.category || 'Street Food'}</span>
+                  <span class="status-badge-pending">⏳ Pending Verification</span>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.875rem; color: var(--color-on-surface-variant); margin-top: 0.4rem;">
+                  <div style="display: flex; align-items: center; gap: 0.35rem;">
+                    <span class="material-symbols-outlined" style="font-size: 16px; color: var(--color-secondary);">place</span>
+                    <span><strong>Location:</strong> ${app.locality || 'Hazratganj, Lucknow'}</span>
+                    <a href="https://www.google.com/maps/search/?api=1&query=${gmapsQuery}" target="_blank" rel="noopener noreferrer" style="font-size: 0.75rem; color: var(--color-primary); margin-left: 0.5rem; text-decoration: underline; display: inline-flex; align-items: center; gap: 2px;">
+                      <span>Maps</span>
+                      <span class="material-symbols-outlined" style="font-size: 12px;">open_in_new</span>
+                    </a>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 0.35rem;">
+                    <span class="material-symbols-outlined" style="font-size: 16px; color: var(--color-tertiary);">signpost</span>
+                    <span><strong>Landmark:</strong> ${app.landmark || 'Main market lane'}</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 0.35rem;">
+                    <span class="material-symbols-outlined" style="font-size: 16px; color: #25D366;">call</span>
+                    <span><strong>Phone / WhatsApp:</strong> ${phone}</span>
+                    <a href="https://wa.me/${cleanPhone}?text=${waText}" target="_blank" rel="noopener noreferrer" style="font-size: 0.75rem; color: #128C7E; font-weight: 700; margin-left: 0.5rem; text-decoration: underline; display: inline-flex; align-items: center; gap: 2px;">
+                      <span>WhatsApp Ping</span>
+                      <span class="material-symbols-outlined" style="font-size: 12px;">chat</span>
+                    </a>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; color: var(--color-outline);">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">calendar_today</span>
+                    <span>Submitted: ${formattedDate}</span>
+                  </div>
+                </div>
+
+                <!-- Step-by-Step Genuineness Verification Checklist -->
+                <div style="margin-top: 0.85rem; padding: 0.75rem; background: var(--color-surface-container-low); border-radius: var(--radius-md); border: 1px dashed var(--color-outline-variant);">
+                  <div style="font-size: 0.75rem; font-weight: 800; color: var(--color-on-surface); text-transform: uppercase; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.35rem;">
+                    <span class="material-symbols-outlined" style="font-size: 14px; color: var(--color-primary);">verified_user</span>
+                    <span>Admin Genuineness Checklist</span>
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.8rem; color: var(--color-on-surface-variant);">
+                    <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                      <input type="checkbox" id="chk_photo_${app.id}" onchange="checkVerificationReadiness(${app.id})">
+                      <span><strong>1. Stall Photo:</strong> Real cart/thela banner visible (not stock or stolen image)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                      <input type="checkbox" id="chk_loc_${app.id}" onchange="checkVerificationReadiness(${app.id})">
+                      <span><strong>2. Landmark Plausibility:</strong> Valid Lucknow street spot or known bazaar cluster</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                      <input type="checkbox" id="chk_contact_${app.id}" onchange="checkVerificationReadiness(${app.id})">
+                      <span><strong>3. Active Commerce:</strong> Phone/WhatsApp reachable or active local vending hours</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Admin Action Buttons -->
+              <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: stretch; justify-content: center; min-width: 140px;">
+                <button type="button" class="btn btn-sm btn-primary" id="btn_approve_${app.id}" onclick="approveApplication(${app.id})" style="display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
+                  <span class="material-symbols-outlined" style="font-size: 16px;">check_circle</span>
+                  <span>Approve Stall</span>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline" onclick="openRejectModal(${app.id})" style="color: var(--color-error); border-color: var(--color-error); display: flex; align-items: center; justify-content: center; gap: 0.3rem;">
+                  <span class="material-symbols-outlined" style="font-size: 16px;">cancel</span>
+                  <span>Reject</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function updateMetrics() {
+      let all = [];
+      if (window.StreetKartStore) {
+        all = await window.StreetKartStore.getVendors({});
+      } else if (window.StreetKartData) {
+        all = window.StreetKartData.getVendors();
+      }
+
+      const pending = all.filter(v => v.verification_status === 'pending').length;
+      const approved = all.filter(v => v.verification_status === 'approved' || (v.verified && !v.verification_status)).length;
+      const rejected = all.filter(v => v.verification_status === 'rejected').length;
+
+      document.getElementById('metricPending').textContent = String(pending);
+      document.getElementById('metricApproved').textContent = String(approved);
+      document.getElementById('metricRejected').textContent = String(rejected);
+    }
+
+    function checkVerificationReadiness(vendorId) {
+      const p = document.getElementById(`chk_photo_${vendorId}`)?.checked;
+      const l = document.getElementById(`chk_loc_${vendorId}`)?.checked;
+      const c = document.getElementById(`chk_contact_${vendorId}`)?.checked;
+      const btn = document.getElementById(`btn_approve_${vendorId}`);
+      if (!btn) return;
+
+      if (p && l && c) {
+        btn.style.boxShadow = '0 0 0 3px rgba(37, 211, 102, 0.4)';
+      } else {
+        btn.style.boxShadow = 'none';
+      }
+    }
+
+    async function approveApplication(vendorId) {
+      const p = document.getElementById(`chk_photo_${vendorId}`)?.checked;
+      const l = document.getElementById(`chk_loc_${vendorId}`)?.checked;
+      const c = document.getElementById(`chk_contact_${vendorId}`)?.checked;
+
+      if (!p || !l || !c) {
+        const proceed = confirm(
+          'Genuineness Checklist Incomplete:\n' +
+          '• Stall Photo verified: ' + (p ? 'YES' : 'NO') + '\n' +
+          '• Landmark plausibility checked: ' + (l ? 'YES' : 'NO') + '\n' +
+          '• Contact/Commerce verified: ' + (c ? 'YES' : 'NO') + '\n\n' +
+          'Do you still wish to proceed with approval?'
+        );
+        if (!proceed) return;
+      } else {
+        if (!confirm('All 3 genuineness checks passed! Approve this vendor application and activate the Verified Listing badge?')) {
+          return;
+        }
+      }
+
+      let res = null;
+      if (window.StreetKartAPI && typeof window.StreetKartAPI.reviewVendorApplication === 'function') {
+        res = await window.StreetKartAPI.reviewVendorApplication({ vendorId, status: 'approved' });
+      } else if (window.StreetKartStore) {
+        res = await window.StreetKartStore.reviewVendorApplication({ vendorId, status: 'approved' });
+      }
+
+      if (res && res.success) {
+        if (window.ToastManager) {
+          ToastManager.success('✓ Vendor application approved! Verified badge activated.');
+        }
+        await loadApplications();
+      } else {
+        const errMsg = (res && res.error) ? res.error : 'Authorization failed or database error.';
+        alert('Action Failed: ' + errMsg);
+      }
+    }
+
+    function openRejectModal(vendorId) {
+      document.getElementById('rejectVendorId').value = String(vendorId);
+      document.getElementById('rejectionReasonText').value = '';
+      document.getElementById('rejectModalBackdrop').classList.add('active');
+    }
+
+    function closeRejectModal() {
+      document.getElementById('rejectModalBackdrop').classList.remove('active');
+    }
+
+    async function submitRejection() {
+      const vendorId = document.getElementById('rejectVendorId').value;
+      const reason = document.getElementById('rejectionReasonText').value.trim();
+
+      if (!reason) {
+        alert('Please provide a brief reason for rejecting the application.');
+        return;
+      }
+
+      let res = null;
+      if (window.StreetKartAPI && typeof window.StreetKartAPI.reviewVendorApplication === 'function') {
+        res = await window.StreetKartAPI.reviewVendorApplication({ vendorId, status: 'rejected', rejectionReason: reason });
+      } else if (window.StreetKartStore) {
+        res = await window.StreetKartStore.reviewVendorApplication({ vendorId, status: 'rejected', rejectionReason: reason });
+      }
+
+      if (res && res.success) {
+        if (window.ToastManager) {
+          ToastManager.info('Vendor application marked as rejected.');
+        }
+        closeRejectModal();
+        await loadApplications();
+      } else {
+        const errMsg = (res && res.error) ? res.error : 'Authorization failed or database error.';
+        alert('Action Failed: ' + errMsg);
+      }
+    }
+
+    function openPhotoLightbox(url) {
+      document.getElementById('lightboxImg').src = url;
+      document.getElementById('photoLightboxModal').classList.add('active');
+    }
+
+    function closePhotoLightbox() {
+      document.getElementById('photoLightboxModal').classList.remove('active');
+    }
+
+    function showBackendSetupModal() {
+      alert(
+        "Supabase Vendor Verification Setup Guide:\n\n" +
+        "1. Open your Supabase project dashboard.\n" +
+        "2. Navigate to SQL Editor and run: supabase/migrations/20261028_vendor_verification.sql\n" +
+        "3. Add your admin user's UUID to the public.admin_users table.\n" +
+        "4. In your browser console or localStorage, set:\n" +
+        "   localStorage.setItem('streetkart_supabase_url', 'YOUR_URL');\n" +
+        "   localStorage.setItem('streetkart_supabase_key', 'YOUR_ANON_KEY');\n\n" +
+        "The system will automatically switch to live Supabase backend with enforced RLS policies."
+      );
+    }
+  </script>
+</body>
+
+</html>

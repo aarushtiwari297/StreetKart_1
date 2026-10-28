@@ -182,18 +182,32 @@ async function handleVendorSignup(event) {
   const products = document.getElementById('products')?.value || '';
   const priceRange = document.getElementById('priceRange')?.value || '₹20-50';
   const isOpen = document.getElementById('isOpen') ? document.getElementById('isOpen').checked : true;
-
-  const vendorPayload = {
-    vendorName,
-    category,
-    locality,
-    landmark,
-    products,
-    priceRange,
-    isOpen
-  };
+  const stallPhoto = document.getElementById('stallPhotoUrl')?.value || 'assets/logo-icon.svg';
+  const stallPhotoFile = document.getElementById('stallPhotoFile')?.files?.[0];
 
   try {
+    let uploadedPhotoUrl = stallPhoto;
+    if (stallPhotoFile && window.StreetKartAPI && typeof window.StreetKartAPI.uploadStallPhoto === 'function') {
+      const uploadRes = await window.StreetKartAPI.uploadStallPhoto(stallPhotoFile);
+      if (uploadRes && uploadRes.url) {
+        uploadedPhotoUrl = uploadRes.url;
+      }
+    }
+
+    const vendorPayload = {
+      vendorName,
+      category,
+      locality,
+      landmark,
+      products,
+      priceRange,
+      isOpen,
+      imageUrl: uploadedPhotoUrl,
+      stallPhoto: uploadedPhotoUrl,
+      verification_status: 'pending',
+      verified: false
+    };
+
     let created = null;
     if (window.StreetKartStore) {
       created = await window.StreetKartStore.createVendor(vendorPayload);
@@ -228,7 +242,7 @@ async function handleVendorSignup(event) {
       submitBtn.disabled = false;
     }
 
-    ToastManager.success('बधाई हो! Stall created and published!');
+    ToastManager.success('बधाई हो! Stall submitted (Pending Verification)!');
 
     // Show success overlay modal
     const overlay = document.getElementById('successOverlay');
@@ -334,24 +348,41 @@ function renderVendorCards(vendorList) {
   if (!container) return;
 
   if (!vendorList || vendorList.length === 0) {
+    const emptyTitle = typeof t === 'function' ? t('empty_search_title') : 'No stalls match your search';
+    const emptyDesc = typeof t === 'function' ? t('empty_search_desc') : 'Try adjusting your category pills, distance radius, or search query';
+    const resetText = typeof t === 'function' ? t('reset_all_filters') : 'Reset All Filters';
     container.innerHTML = `
       <div class="empty-state" style="grid-column: 1/-1; background-color: var(--color-surface-container-lowest); border-radius: var(--radius-xl); border: 1px dashed var(--color-outline);">
         <div class="empty-state-icon">🔍</div>
-        <h3 class="empty-state-title" style="font-weight: 800;">No stalls match your search</h3>
-        <p class="empty-state-description">Try adjusting your category pills, distance radius, or search query</p>
-        <button class="btn btn-primary" onclick="resetFilters()">Reset All Filters</button>
+        <h3 class="empty-state-title" style="font-weight: 800;" data-i18n="empty_search_title">${emptyTitle}</h3>
+        <p class="empty-state-description" data-i18n="empty_search_desc">${emptyDesc}</p>
+        <button class="btn btn-primary" onclick="resetFilters()" data-i18n="reset_all_filters">${resetText}</button>
       </div>
     `;
     return;
   }
 
-  container.innerHTML = vendorList.map((vendor, index) => `
+  const walkLabel = typeof t === 'function' ? t('walk_to_cart') : 'Walk to Cart';
+  const callLabel = typeof t === 'function' ? t('call_vendor') : 'Call Vendor';
+  const openLabel = typeof t === 'function' ? t('status_open') : 'Open Right Now';
+  const closedLabel = typeof t === 'function' ? t('status_closed') : 'Closed';
+
+  container.innerHTML = vendorList.map((vendor, index) => {
+    const loc = typeof getLocalizedVendor === 'function' ? getLocalizedVendor(vendor) : vendor;
+    const displayName = loc.name || vendor.name;
+    const displayCategory = loc.categoryDisplay || (typeof getLocalizedCategory === 'function' ? getLocalizedCategory(vendor.category) : vendor.category);
+    const displayProducts = Array.isArray(loc.products) ? loc.products : (vendor.products || []);
+    const statusText = vendor.isOpen ? openLabel : closedLabel;
+
+    const isApprovedVerified = Boolean(vendor.verified && (vendor.verification_status === 'approved' || vendor.verification_status === undefined));
+
+    return `
     <article class="vendor-card-stitch stagger-item" style="animation-delay: ${index * 0.08}s">
       <div class="vendor-header-top">
         <div class="vendor-img-thumb">
-          <img src="${vendor.imageUrl || 'assets/logo-icon.svg'}" alt="${vendor.name}" loading="lazy">
-          ${vendor.verified ? `
-            <div class="verified-dot-badge" title="Verified Local Vendor">
+          <img src="${vendor.imageUrl || 'assets/logo-icon.svg'}" alt="${displayName}" loading="lazy">
+          ${isApprovedVerified ? `
+            <div class="verified-dot-badge" title="Verified Listing (Digital Review)" aria-label="Verified Listing (Digital Review)">
               <span class="material-symbols-outlined" style="font-size: 13px;">verified</span>
             </div>
           ` : ''}
@@ -359,7 +390,7 @@ function renderVendorCards(vendorList) {
         <div style="flex: 1; min-width: 0;">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.25rem;">
             <h3 style="font-size: 1.0625rem; font-weight: 700; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-on-surface);">
-              ${vendor.name}
+              ${displayName}
             </h3>
             <span class="vendor-rating-chip">
               <span class="material-symbols-outlined" style="font-size: 12px; color: var(--color-tertiary);">star</span>
@@ -368,14 +399,14 @@ function renderVendorCards(vendorList) {
           </div>
           <div style="display: flex; align-items: center; gap: 0.35rem; color: var(--color-on-surface-variant); font-size: 0.8125rem; margin-top: 0.25rem;">
             <span class="material-symbols-outlined" style="font-size: 15px; color: var(--color-secondary);">storefront</span>
-            <span style="font-weight: 600; color: var(--color-secondary);">${vendor.category}</span>
+            <span style="font-weight: 600; color: var(--color-secondary);">${displayCategory}</span>
             <span>•</span>
             <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${vendor.locality}</span>
           </div>
           <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.4rem; flex-wrap: wrap;">
             <span class="${vendor.isOpen ? 'vendor-status-active' : 'vendor-status-closed'}">
               <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background-color: ${vendor.isOpen ? 'var(--color-primary)' : 'var(--color-outline)'}; ${vendor.isOpen ? 'animation: pulse 2s infinite;' : ''}"></span>
-              <span>${vendor.isOpen ? 'Open Right Now' : 'Closed'}</span>
+              <span>${statusText}</span>
             </span>
             <span style="font-size: 0.6875rem; font-weight: 700; color: var(--color-primary); background: var(--color-primary-fixed); padding: 0.15rem 0.45rem; border-radius: var(--radius-full);">
               ${vendor.priceRange}
@@ -386,24 +417,25 @@ function renderVendorCards(vendorList) {
 
       <!-- Specialties Pill Tags -->
       <div class="vendor-products-tags">
-        ${(vendor.products || []).slice(0, 3).map(p => `
+        ${displayProducts.slice(0, 3).map(p => `
           <span class="prod-tag">${p}</span>
         `).join('')}
-        ${(vendor.products || []).length > 3 ? `<span class="prod-tag">+${vendor.products.length - 3} more</span>` : ''}
+        ${displayProducts.length > 3 ? `<span class="prod-tag">+${displayProducts.length - 3} more</span>` : ''}
       </div>
 
       <!-- Action Footer -->
       <div class="vendor-card-actions">
         <a href="vendor-details.html?id=${vendor.id}" class="btn-walk-cart">
           <span class="material-symbols-outlined" style="font-size: 18px;">directions_walk</span>
-          <span>Walk to Cart (${vendor.walkTime || '4 min'})</span>
+          <span>${walkLabel} (${vendor.walkTime || '4 min'})</span>
         </a>
-        <a href="tel:${vendor.phone || '+911234567890'}" class="btn-icon-call" aria-label="Call Vendor" title="Call Vendor">
+        <a href="tel:${vendor.phone || '+911234567890'}" class="btn-icon-call" aria-label="${callLabel}" title="${callLabel}">
           <span class="material-symbols-outlined" style="font-size: 18px;">call</span>
         </a>
       </div>
     </article>
-  `).join('');
+  `;
+  }).join('');
 
   // Re-observe newly rendered elements
   document.querySelectorAll('.stagger-item').forEach(el => {
@@ -435,6 +467,41 @@ function resetFilters() {
 }
 
 // ===================================
+// RENDER CATEGORY PILLS (LOCALIZED)
+// ===================================
+function renderCategoryPills() {
+  const categories = typeof getCategories === 'function' ? getCategories() : ['All', 'Snacks', 'Vegetables', 'Tea', 'Flowers', 'Other'];
+  const filterContainer = document.getElementById('categoryFilters');
+  if (!filterContainer) return;
+
+  const catIcons = {
+    'All': 'storefront',
+    'Snacks': 'skillet',
+    'Vegetables': 'eco',
+    'Tea': 'coffee',
+    'Flowers': 'local_florist',
+    'Other': 'handyman'
+  };
+
+  const stallsWord = typeof t === 'function' ? t('category_stalls_suffix') : 'Stalls';
+
+  filterContainer.innerHTML = categories.map((cat) => {
+    const displayCat = typeof getLocalizedCategory === 'function' ? getLocalizedCategory(cat) : cat;
+    return `
+      <button type="button" class="cat-pill ${cat === currentCategory ? 'active' : ''}" onclick="setCategory('${cat}')">
+        <div class="cat-icon-box">
+          <span class="material-symbols-outlined">${catIcons[cat] || 'category'}</span>
+        </div>
+        <div>
+          <span style="font-size: 0.875rem; font-weight: 700; display: block;">${displayCat}</span>
+          <span class="cat-count">${stallsWord}</span>
+        </div>
+      </button>
+    `;
+  }).join('');
+}
+
+// ===================================
 // INITIALIZE BROWSE PAGE
 // ===================================
 function initBrowsePage() {
@@ -451,31 +518,7 @@ function initBrowsePage() {
     if (searchInput) searchInput.value = requestedQuery;
   }
 
-  const categories = typeof getCategories === 'function' ? getCategories() : ['All', 'Snacks', 'Vegetables', 'Tea', 'Flowers', 'Other'];
-  const filterContainer = document.getElementById('categoryFilters');
-
-  const catIcons = {
-    'All': 'storefront',
-    'Snacks': 'skillet',
-    'Vegetables': 'eco',
-    'Tea': 'coffee',
-    'Flowers': 'local_florist',
-    'Other': 'handyman'
-  };
-
-  if (filterContainer) {
-    filterContainer.innerHTML = categories.map((cat) => `
-      <button type="button" class="cat-pill ${cat === currentCategory ? 'active' : ''}" onclick="setCategory('${cat}')">
-        <div class="cat-icon-box">
-          <span class="material-symbols-outlined">${catIcons[cat] || 'category'}</span>
-        </div>
-        <div>
-          <span style="font-size: 0.875rem; font-weight: 700; display: block;">${cat}</span>
-          <span class="cat-count">Stalls</span>
-        </div>
-      </button>
-    `).join('');
-  }
+  renderCategoryPills();
 
   // Show skeleton shimmer loading
   const vendorGrid = document.getElementById('vendorGrid');
@@ -496,24 +539,25 @@ function initBrowsePage() {
 function loadVendorDetails() {
   const urlParams = new URLSearchParams(window.location.search);
   const vendorId = urlParams.get('id') || '1';
-  const vendor = typeof getVendorById === 'function' ? getVendorById(vendorId) : null;
+  const rawVendor = typeof getVendorById === 'function' ? getVendorById(vendorId) : null;
   const container = document.getElementById('vendorDetailsContent');
 
   if (!container) return;
 
-  if (!vendor) {
+  if (!rawVendor) {
     container.innerHTML = `
       <div class="empty-state" style="background-color: var(--color-surface-container-lowest); border-radius: var(--radius-xl); border: 1px solid var(--color-outline-variant);">
         <div class="empty-state-icon">😕</div>
-        <h2 class="empty-state-title" style="font-weight: 800;">Stall Not Found</h2>
-        <p class="empty-state-description">The vendor you are looking for is not listed or has moved.</p>
-        <a href="browse.html" class="btn btn-primary">Browse All Nearby Stalls</a>
+        <h2 class="empty-state-title" style="font-weight: 800;">${typeof t === 'function' ? t('stall_not_found_title') : 'Stall Not Found'}</h2>
+        <p class="empty-state-description">${typeof t === 'function' ? t('stall_not_found_desc') : 'The vendor you are looking for is not listed or has moved.'}</p>
+        <a href="browse.html" class="btn btn-primary">${typeof t === 'function' ? t('back_to_browse') : 'Browse All Nearby Stalls'}</a>
       </div>
     `;
     return;
   }
 
-  const items = vendor.menuItems && vendor.menuItems.length > 0 
+  const vendor = typeof getLocalizedVendor === 'function' ? getLocalizedVendor(rawVendor) : rawVendor;
+  const items = Array.isArray(vendor.menuItems) && vendor.menuItems.length > 0 
     ? vendor.menuItems 
     : (vendor.products || []).map(p => ({
         name: p,
@@ -521,16 +565,37 @@ function loadVendorDetails() {
         desc: 'Freshly prepared daily at cart'
       }));
 
+  const backText = typeof t === 'function' ? t('back_to_browse') : 'Back to Browse';
+  const shareText = typeof t === 'function' ? t('share_stall') : 'Share Stall';
+  const verifiedBadge = typeof t === 'function' ? t('status_verified') : 'Verified Micro-Vendor';
+  const sinceText = typeof t === 'function' ? t('status_since') : 'Since';
+  const openLabel = typeof t === 'function' ? t('status_open') : 'Open Right Now';
+  const closedLabel = typeof t === 'function' ? t('status_closed') : 'Currently Closed';
+  const landmarkLabel = typeof t === 'function' ? t('landmark_label') : 'Landmark:';
+  const priceRangeLabel = typeof t === 'function' ? t('price_range_label') : 'Price Range';
+  const budgetFriendlyText = typeof t === 'function' ? t('budget_friendly') : 'Budget-friendly';
+  const proximityLabel = typeof t === 'function' ? t('proximity_label') : 'Proximity';
+  const awayLabel = typeof t === 'function' ? t('away_label') : 'Away';
+  const dailyTimingsLabel = typeof t === 'function' ? t('daily_timings_label') : 'Daily Timings';
+  const setupTypeLabel = typeof t === 'function' ? t('setup_type_label') : 'Setup Type';
+  const menuPricingTitle = typeof t === 'function' ? t('menu_pricing_title') : "Today's Fresh Prep (Menu & Pricing)";
+  const freshStockText = typeof t === 'function' ? t('fresh_daily_stock') : 'Fresh Daily Stock';
+  const directTitle = typeof t === 'function' ? t('direct_settlement_title') : 'Direct Stall Settlement:';
+  const directDesc = typeof t === 'function' ? t('direct_settlement_desc') : `Pay directly to ${vendor.name} via UPI QR or cash at the cart. No advance payment or app platform cut.`;
+  const cartLocationTitle = typeof t === 'function' ? t('cart_location_title') : 'Cart Location & Spotting (Lucknow, UP)';
+  const displayCategory = vendor.categoryDisplay || (typeof getLocalizedCategory === 'function' ? getLocalizedCategory(vendor.category) : vendor.category);
+  const isApprovedVerified = Boolean(vendor.verified && (vendor.verification_status === 'approved' || vendor.verification_status === undefined));
+
   container.innerHTML = `
     <!-- Top Back Navigation -->
     <div style="margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center;" class="animate-fade-in-down">
       <a href="browse.html" style="color: var(--color-primary); font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem;">
         <span class="material-symbols-outlined">arrow_back</span>
-        <span>Back to Browse</span>
+        <span>${backText}</span>
       </a>
       <button class="btn btn-outline btn-sm" onclick="shareCurrentStall()" style="display: inline-flex; align-items: center; gap: 0.35rem;">
         <span class="material-symbols-outlined" style="font-size: 16px;">share</span>
-        <span>Share Stall</span>
+        <span>${shareText}</span>
       </button>
     </div>
 
@@ -543,17 +608,25 @@ function loadVendorDetails() {
         </div>
         <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(27, 28, 25, 0.85) 0%, transparent 60%); display: flex; flex-direction: column; justify-content: flex-end; padding: 1.25rem; color: white;">
           <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.35rem;">
-            <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: var(--color-primary); color: white; padding: 0.2rem 0.6rem; border-radius: var(--radius-full);">
-              Verified Micro-Vendor
-            </span>
+            ${isApprovedVerified ? `
+              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: var(--color-primary); color: white; padding: 0.2rem 0.6rem; border-radius: var(--radius-full);">
+                Verified Listing (Digital Review)
+              </span>
+            ` : (vendor.verification_status === 'pending' ? `
+              <span style="font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: #FFF3CD; color: #856404; padding: 0.2rem 0.6rem; border-radius: var(--radius-full);">
+                ⏳ Pending Review
+              </span>
+            ` : '')}
             <span style="font-size: 0.6875rem; font-weight: 700; background: var(--color-secondary); color: white; padding: 0.2rem 0.6rem; border-radius: var(--radius-full);">
-              Since ${vendor.since || '2011'}
+              ${sinceText} ${vendor.since || '2011'}
             </span>
           </div>
-          <p style="font-size: 0.8125rem; color: var(--color-primary-fixed); margin: 0; display: flex; align-items: center; gap: 0.35rem;">
-            <span class="material-symbols-outlined" style="font-size: 15px;">verified</span>
-            Awadh Vyapar Mandal Certified
-          </p>
+          ${isApprovedVerified ? `
+            <p style="font-size: 0.8125rem; color: var(--color-primary-fixed); margin: 0; display: flex; align-items: center; gap: 0.35rem;">
+              <span class="material-symbols-outlined" style="font-size: 15px;">verified</span>
+              Community Reviewed (Digital Verification)
+            </p>
+          ` : ''}
         </div>
       </div>
 
@@ -562,7 +635,7 @@ function loadVendorDetails() {
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
           <div>
             <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.35rem;">
-              <span class="badge badge-primary">${vendor.category}</span>
+              <span class="badge badge-primary">${displayCategory}</span>
               <span style="font-size: 0.75rem; font-weight: 700; background: var(--color-tertiary-fixed); color: var(--color-on-tertiary-fixed); padding: 0.15rem 0.5rem; border-radius: var(--radius-sm);">
                 ★ ${vendor.rating || '4.9'} (${vendor.reviewsCount || 142} neighbours)
               </span>
@@ -580,7 +653,7 @@ function loadVendorDetails() {
           <div style="text-align: right;">
             <span class="${vendor.isOpen ? 'vendor-status-active' : 'vendor-status-closed'}" style="font-size: 0.875rem; padding: 0.4rem 0.85rem;">
               <span style="width: 8px; height: 8px; border-radius: 50%; background-color: ${vendor.isOpen ? 'var(--color-primary)' : 'var(--color-outline)'}; display: inline-block; ${vendor.isOpen ? 'animation: pulse 2s infinite;' : ''}"></span>
-              <span>${vendor.isOpen ? 'Open Right Now' : 'Currently Closed'}</span>
+              <span>${vendor.isOpen ? openLabel : closedLabel}</span>
             </span>
             <span style="display: block; font-size: 0.6875rem; color: var(--color-on-surface-variant); margin-top: 0.25rem;">
               Updated 20m ago
@@ -591,7 +664,7 @@ function loadVendorDetails() {
         <!-- Landmark Micro Strip -->
         <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--color-outline-variant); color: var(--color-on-surface-variant); font-size: 0.875rem;">
           <span class="material-symbols-outlined" style="color: var(--color-tertiary); font-size: 18px;">nature_people</span>
-          <span><strong>Landmark:</strong> ${vendor.landmark || 'Near main market square'}</span>
+          <span><strong>${landmarkLabel}</strong> ${vendor.landmark || 'Near main market square'}</span>
         </div>
       </div>
 
@@ -602,9 +675,9 @@ function loadVendorDetails() {
             <span class="material-symbols-outlined">payments</span>
           </div>
           <div>
-            <span style="font-size: 0.6875rem; text-transform: uppercase; font-weight: 700; color: var(--color-on-surface-variant); display: block;">Price Range</span>
+            <span style="font-size: 0.6875rem; text-transform: uppercase; font-weight: 700; color: var(--color-on-surface-variant); display: block;">${priceRangeLabel}</span>
             <span style="font-size: 0.9375rem; font-weight: 700; color: var(--color-on-surface); display: block;">${vendor.priceRange}</span>
-            <span style="font-size: 0.6875rem; color: var(--color-outline);">Budget-friendly</span>
+            <span style="font-size: 0.6875rem; color: var(--color-outline);">${budgetFriendlyText}</span>
           </div>
         </div>
 
@@ -613,8 +686,8 @@ function loadVendorDetails() {
             <span class="material-symbols-outlined">directions_walk</span>
           </div>
           <div>
-            <span style="font-size: 0.6875rem; text-transform: uppercase; font-weight: 700; color: var(--color-on-surface-variant); display: block;">Proximity</span>
-            <span style="font-size: 0.9375rem; font-weight: 700; color: var(--color-on-surface); display: block;">${vendor.distance || '350m'} Away</span>
+            <span style="font-size: 0.6875rem; text-transform: uppercase; font-weight: 700; color: var(--color-on-surface-variant); display: block;">${proximityLabel}</span>
+            <span style="font-size: 0.9375rem; font-weight: 700; color: var(--color-on-surface); display: block;">${vendor.distance || '350m'} ${awayLabel}</span>
             <span style="font-size: 0.6875rem; color: var(--color-outline);">~${vendor.walkTime || '4 min'} walk</span>
           </div>
         </div>
@@ -624,7 +697,7 @@ function loadVendorDetails() {
             <span class="material-symbols-outlined">schedule</span>
           </div>
           <div>
-            <span style="font-size: 0.6875rem; text-transform: uppercase; font-weight: 700; color: var(--color-on-surface-variant); display: block;">Daily Timings</span>
+            <span style="font-size: 0.6875rem; text-transform: uppercase; font-weight: 700; color: var(--color-on-surface-variant); display: block;">${dailyTimingsLabel}</span>
             <span style="font-size: 0.875rem; font-weight: 700; color: var(--color-on-surface); display: block;">${vendor.timings || '4:30 – 10:30 PM'}</span>
             <span style="font-size: 0.6875rem; color: var(--color-outline);">Mon – Sun</span>
           </div>
@@ -635,7 +708,7 @@ function loadVendorDetails() {
             <span class="material-symbols-outlined">storefront</span>
           </div>
           <div>
-            <span style="font-size: 0.6875rem; text-transform: uppercase; font-weight: 700; color: var(--color-on-surface-variant); display: block;">Setup Type</span>
+            <span style="font-size: 0.6875rem; text-transform: uppercase; font-weight: 700; color: var(--color-on-surface-variant); display: block;">${setupTypeLabel}</span>
             <span style="font-size: 0.875rem; font-weight: 700; color: var(--color-on-surface); display: block;">${vendor.setupType || 'Handcart'}</span>
             <span style="font-size: 0.6875rem; color: var(--color-outline);">Mobile Thela</span>
           </div>
@@ -648,11 +721,11 @@ function loadVendorDetails() {
           <div style="display: flex; align-items: center; gap: 0.5rem;">
             <span style="width: 10px; height: 10px; border-radius: 50%; background-color: var(--color-secondary);"></span>
             <h2 style="font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--color-on-surface);">
-              Today's Fresh Prep (Menu & Pricing)
+              ${menuPricingTitle}
             </h2>
           </div>
           <span style="font-size: 0.6875rem; font-weight: 700; background: var(--color-tertiary-fixed); color: var(--color-on-tertiary-fixed); padding: 0.2rem 0.6rem; border-radius: var(--radius-sm);">
-            Fresh Daily Stock
+            ${freshStockText}
           </span>
         </div>
 
@@ -674,7 +747,7 @@ function loadVendorDetails() {
         <div style="background-color: var(--color-secondary-fixed); border-radius: var(--radius-md); padding: 0.85rem 1rem; display: flex; align-items: flex-start; gap: 0.75rem; border: 1px solid rgba(192, 74, 5, 0.2);">
           <span class="material-symbols-outlined" style="color: var(--color-secondary); font-size: 22px; flex-shrink: 0; margin-top: 0.1rem;">qr_code_scanner</span>
           <p style="font-size: 0.8125rem; color: var(--color-on-secondary-fixed); line-height: 1.5; margin: 0;">
-            <strong>Direct Stall Settlement:</strong> Pay directly to ${vendor.name} via UPI QR or cash at the cart. No advance payment or app platform cut.
+            <strong>${directTitle}</strong> ${directDesc}
           </p>
         </div>
       </div>
@@ -685,7 +758,7 @@ function loadVendorDetails() {
           <div style="display: flex; align-items: center; gap: 0.5rem;">
             <span class="material-symbols-outlined" style="color: var(--color-secondary); font-size: 22px;">near_me</span>
             <h2 style="font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--color-on-surface);">
-              Cart Location & Spotting (Lucknow, UP)
+              ${cartLocationTitle}
             </h2>
           </div>
           <span style="font-size: 0.6875rem; font-weight: 700; background: var(--color-primary-fixed); color: var(--color-on-primary-fixed); padding: 0.2rem 0.6rem; border-radius: var(--radius-sm);">
@@ -1887,6 +1960,28 @@ window.StreetKartRouteGuard = StreetKartRouteGuard;
 document.addEventListener('DOMContentLoaded', () => {
   StreetKartAuthUI.init();
   StreetKartRouteGuard.enforcePageGuard();
+});
+
+// ==========================================================================
+// DYNAMIC LANGUAGE CHANGE LISTENER (Phase D)
+// Updates browse filters, stall cards and vendor details without page reload
+// ==========================================================================
+window.addEventListener('streetkart:languageChanged', () => {
+  // Re-render Browse page elements
+  if (document.getElementById('vendorGrid')) {
+    if (typeof renderCategoryPills === 'function') renderCategoryPills();
+    if (typeof filterVendorCards === 'function') filterVendorCards();
+  }
+
+  // Re-render Vendor Details elements
+  if (document.getElementById('vendorDetailsContent')) {
+    if (typeof loadVendorDetails === 'function') loadVendorDetails();
+  }
+
+  // Update Auth Modal / navbar state
+  if (window.StreetKartAuthUI && typeof StreetKartAuthUI.updateNavbar === 'function') {
+    StreetKartAuthUI.updateNavbar();
+  }
 });
 
 

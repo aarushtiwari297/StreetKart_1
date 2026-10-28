@@ -121,16 +121,23 @@
             </div>
           </div>
 
-          <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <span id="statusBadge" class="badge badge-success animate-pulse" style="font-size: 0.875rem; padding: 0.35rem 0.85rem;">
-              ● Open Right Now
-            </span>
-            <button type="button" class="btn btn-outline btn-sm" onclick="openProfileEditModal()">
-              <span class="material-symbols-outlined" style="font-size: 16px;">edit</span>
-              <span>Edit Details</span>
-            </button>
+          <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end;">
+              <span id="verificationStatusBadge" class="badge" style="font-size: 0.8125rem; padding: 0.35rem 0.65rem; display: none; align-items: center;">
+                ⏳ Verification Pending
+              </span>
+              <span id="statusBadge" class="badge badge-success animate-pulse" style="font-size: 0.875rem; padding: 0.35rem 0.85rem;">
+                ● Open Right Now
+              </span>
+              <button type="button" class="btn btn-outline btn-sm" onclick="openProfileEditModal()">
+                <span class="material-symbols-outlined" style="font-size: 16px;">edit</span>
+                <span>Edit Details</span>
+              </button>
+            </div>
           </div>
         </div>
+        <!-- Verification review notice strip -->
+        <div id="verificationNoticeStrip" style="display: none; border-radius: var(--radius-md); padding: 0.75rem 1rem; margin-top: 1rem; font-size: 0.875rem; border: 1px solid rgba(0,0,0,0.1);"></div>
       </div>
 
       <!-- Big Tactile Master Availability Toggle (Stitch Screen 4cb5b027 Anchor) -->
@@ -508,6 +515,47 @@
         document.getElementById('dashboardVendorImg').src = vendor.imageUrl;
       }
 
+      // Update verification lifecycle badge & notice strip
+      const vBadge = document.getElementById('verificationStatusBadge');
+      const vNotice = document.getElementById('verificationNoticeStrip');
+      const vStatus = vendor.verification_status || (vendor.verified ? 'approved' : 'pending');
+
+      if (vBadge) {
+        if (vStatus === 'approved') {
+          vBadge.className = 'badge badge-success';
+          vBadge.style.backgroundColor = 'var(--color-primary-fixed)';
+          vBadge.style.color = 'var(--color-on-primary-fixed)';
+          vBadge.style.display = 'inline-flex';
+          vBadge.innerHTML = '<span class="material-symbols-outlined" style="font-size: 14px; margin-right: 3px;">verified</span> Verified Listing (Digital Review)';
+          if (vNotice) vNotice.style.display = 'none';
+        } else if (vStatus === 'rejected') {
+          vBadge.className = 'badge badge-error';
+          vBadge.style.backgroundColor = 'var(--color-error-container)';
+          vBadge.style.color = 'var(--color-on-error-container)';
+          vBadge.style.display = 'inline-flex';
+          vBadge.innerHTML = '<span class="material-symbols-outlined" style="font-size: 14px; margin-right: 3px;">cancel</span> Application Rejected';
+          if (vNotice) {
+            vNotice.style.display = 'block';
+            vNotice.style.backgroundColor = 'var(--color-error-container)';
+            vNotice.style.color = 'var(--color-on-error-container)';
+            vNotice.innerHTML = `<strong>Application Needs Revision:</strong> ${vendor.rejectionReason || 'Please review your stall details or contact community support.'}`;
+          }
+        } else {
+          vBadge.className = 'badge';
+          vBadge.style.backgroundColor = '#FFF3CD';
+          vBadge.style.color = '#856404';
+          vBadge.style.border = '1px solid #FFEEBA';
+          vBadge.style.display = 'inline-flex';
+          vBadge.innerHTML = '<span class="material-symbols-outlined" style="font-size: 14px; margin-right: 3px;">schedule</span> Verification Pending';
+          if (vNotice) {
+            vNotice.style.display = 'block';
+            vNotice.style.backgroundColor = '#FFF3CD';
+            vNotice.style.color = '#856404';
+            vNotice.innerHTML = `<strong>⏳ Application Under Review:</strong> Your stall profile has been submitted and is currently awaiting digital verification by a community administrator.`;
+          }
+        }
+      }
+
       // Apply current open/closed state
       setStallState(vendor.isOpen, false);
 
@@ -558,7 +606,7 @@
           
           <div style="display: flex; align-items: center; gap: 0.4rem;">
             <button type="button" id="itemBtn_${index}" class="btn btn-sm" style="background-color: ${item.available !== false ? 'var(--color-primary)' : 'var(--color-error)'}; color: white; font-weight: 700; border-radius: var(--radius-md);" onclick="toggleStockItem(${index})">
-              ${item.available !== false ? '✓ Mil Raha Hai' : '✕ Khatam'}
+              ${item.available !== false ? (typeof t === 'function' ? t('mil_raha_hai') : '✓ Mil Raha Hai') : (typeof t === 'function' ? t('khatam') : '✕ Khatam')}
             </button>
             <button type="button" class="item-action-btn" title="Edit Item" onclick="openEditMenuItemModal(${index})">
               <span class="material-symbols-outlined" style="font-size: 18px;">edit</span>
@@ -576,21 +624,25 @@
       const vendor = currentVendorData;
       if (!previewContainer || !vendor) return;
 
+      const locVendor = typeof getLocalizedVendor === 'function' ? getLocalizedVendor(vendor) : vendor;
+      const openLabel = typeof t === 'function' ? t('status_open') : 'Open Right Now';
+      const closedLabel = typeof t === 'function' ? t('status_closed') : 'Closed';
+
       previewContainer.innerHTML = `
         <article class="vendor-card-stitch" style="background: white;">
           <div class="vendor-header-top">
             <div class="vendor-img-thumb">
-              <img src="${vendor.imageUrl || 'assets/logo-icon.svg'}" alt="${vendor.name}">
+              <img src="${locVendor.imageUrl || 'assets/logo-icon.svg'}" alt="${locVendor.name}">
             </div>
             <div style="flex: 1; min-width: 0;">
               <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                <h3 style="font-size: 1.0625rem; font-weight: 700; margin: 0; color: var(--color-on-surface);">${vendor.name}</h3>
-                <span class="vendor-rating-chip">★ ${vendor.rating || '4.9'}</span>
+                <h3 style="font-size: 1.0625rem; font-weight: 700; margin: 0; color: var(--color-on-surface);">${locVendor.name}</h3>
+                <span class="vendor-rating-chip">★ ${locVendor.rating || '4.9'}</span>
               </div>
-              <p style="font-size: 0.8125rem; color: var(--color-on-surface-variant); margin: 0.25rem 0 0 0;">📍 ${vendor.locality}</p>
+              <p style="font-size: 0.8125rem; color: var(--color-on-surface-variant); margin: 0.25rem 0 0 0;">📍 ${locVendor.locality}</p>
               <div style="margin-top: 0.35rem;">
                 <span id="previewOpenStatus" class="${vendor.isOpen ? 'vendor-status-active' : 'vendor-status-closed'}">
-                  ${vendor.isOpen ? '● Open Right Now' : '● Closed'}
+                  ● ${vendor.isOpen ? openLabel : closedLabel}
                 </span>
               </div>
             </div>
@@ -598,6 +650,12 @@
         </article>
       `;
     }
+
+    // Dynamic language switch listener for dashboard
+    window.addEventListener('streetkart:languageChanged', () => {
+      renderCustomerPreview();
+      renderMenuList();
+    });
 
     async function setStallState(isOpen, showToastNotification = true) {
       if (!currentActiveVendorId) return;

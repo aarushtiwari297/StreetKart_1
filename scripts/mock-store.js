@@ -96,7 +96,19 @@
           const inCategory = (v.category || '').toLowerCase().includes(q);
           const inProducts = Array.isArray(v.products) && v.products.some(p => p.toLowerCase().includes(q));
           const inLandmark = (v.landmark || '').toLowerCase().includes(q);
-          searchMatch = inName || inLocality || inCategory || inProducts || inLandmark;
+
+          let inLocalized = false;
+          if (typeof window !== 'undefined' && window.StreetKartI18n && typeof window.StreetKartI18n.getLocalizedVendor === 'function') {
+            const loc = window.StreetKartI18n.getLocalizedVendor(v);
+            const inLocName = (loc.name || '').toLowerCase().includes(q);
+            const inLocDesc = (loc.description || '').toLowerCase().includes(q);
+            const inLocCategory = (loc.categoryDisplay || '').toLowerCase().includes(q);
+            const inLocLandmark = (loc.landmark || '').toLowerCase().includes(q);
+            const inLocProducts = Array.isArray(loc.products) && loc.products.some(p => p.toLowerCase().includes(q));
+            inLocalized = inLocName || inLocDesc || inLocCategory || inLocLandmark || inLocProducts;
+          }
+
+          searchMatch = inName || inLocality || inCategory || inProducts || inLandmark || inLocalized;
         }
         return categoryMatch && openMatch && searchMatch;
       });
@@ -274,6 +286,10 @@
     /**
      * Create a new vendor profile from signup wizard
      */
+    /**
+     * Create a new vendor profile from signup wizard
+     * All newly onboarded vendors start with verification_status = 'pending' and verified = false.
+     */
     async createVendor(vendorData) {
       if (window.StreetKartData && typeof window.StreetKartData.createVendorProfile === 'function') {
         return window.StreetKartData.createVendorProfile(vendorData);
@@ -297,10 +313,12 @@
         since: new Date().getFullYear().toString(),
         setupType: "Mobile Thela (Cart)",
         timings: vendorData.timings || "8:00 AM – 9:00 PM",
+        verification_status: 'pending',
         verified: false,
         phone: vendorData.phone || "+91 522 000 0000",
         description: vendorData.description || "Authentic local street cart.",
-        imageUrl: vendorData.imageUrl || "assets/logo-icon.svg",
+        imageUrl: vendorData.imageUrl || vendorData.stallPhoto || "assets/logo-icon.svg",
+        createdAt: new Date().toISOString(),
         menuItems: []
       };
 
@@ -308,6 +326,71 @@
       safeSet(KEYS.VENDORS, list);
       localStorage.setItem(KEYS.CURRENT_VENDOR_ID, String(newId));
       return created;
+    },
+
+    /**
+     * Get pending vendor applications for admin review
+     */
+    async getPendingApplications() {
+      let list = [];
+      if (window.StreetKartData && typeof window.StreetKartData.getVendors === 'function') {
+        list = window.StreetKartData.getVendors();
+      } else {
+        list = safeGet(KEYS.VENDORS, []);
+      }
+      return list.filter(v => v.verification_status === 'pending');
+    },
+
+    /**
+     * Review a vendor application (Approve or Reject)
+     * Strictly verifies admin role before performing state transition
+     */
+    async reviewVendorApplication({ vendorId, status, rejectionReason = null }) {
+      if (status !== 'approved' && status !== 'rejected') {
+        return { success: false, error: 'Status must be "approved" or "rejected"' };
+      }
+
+      // Check admin authorization
+      if (window.StreetKartAuth && !window.StreetKartAuth.isAdmin()) {
+        return {
+          success: false,
+          error: 'Access Denied: Only authorized administrators can review vendor applications.'
+        };
+      }
+
+      let list = [];
+      if (window.StreetKartData && typeof window.StreetKartData.getVendors === 'function') {
+        list = window.StreetKartData.getVendors();
+      } else {
+        list = safeGet(KEYS.VENDORS, []);
+      }
+
+      const idx = list.findIndex(v => v.id === parseInt(vendorId, 10) || String(v.id) === String(vendorId));
+      if (idx === -1) {
+        return { success: false, error: 'Vendor application not found' };
+      }
+
+      const current = list[idx];
+      const updated = {
+        ...current,
+        verification_status: status,
+        verified: status === 'approved',
+        reviewedAt: new Date().toISOString(),
+        reviewedBy: window.StreetKartAuth ? window.StreetKartAuth.getCurrentUser()?.id : 'admin',
+        rejection_reason: status === 'rejected' ? rejectionReason : null,
+        rejectionReason: status === 'rejected' ? rejectionReason : null,
+        lastUpdated: new Date().toISOString()
+      };
+
+      list[idx] = updated;
+      safeSet(KEYS.VENDORS, list);
+
+      // Also update in-memory vendors list if data/vendors.js is loaded
+      if (window.StreetKartData && typeof window.StreetKartData.saveVendors === 'function') {
+        window.StreetKartData.saveVendors(list);
+      }
+
+      return { success: true, data: updated };
     },
 
     // =========================================================================
